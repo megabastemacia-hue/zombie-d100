@@ -1,0 +1,154 @@
+{
+  "Actor": {
+    "types": [
+      "survivant",
+      "zombie"
+    ],
+
+    "templates": {
+
+      "base": {
+
+        "stats": {
+
+          "for": 10,
+          "agi": 10,
+          "int": 10,
+          "per": 10,
+          "str": 10,
+          "combat": 10,
+          "tir": 10
+        },
+
+        "stress": {
+
+          "value": 0,
+
+          "mentalState": "stable"
+        },
+
+        "survie": {
+
+          "faim": 0,
+          "soif": 0
+        },
+
+        "infection": {
+
+          "infected": false,
+          "stage": 0,
+          "timer": 0
+        },
+
+        "zombie": {
+
+          "type": "rodeur",
+
+          "aggressivite": 1,
+
+          "detection": 30,
+
+          "infectionChance": 25,
+
+          "target": "",
+
+          "etat": "errance",
+
+          "speed": 1,
+
+          "hordeRadius": 10
+        },
+
+        "blessures": "",
+
+        "statuts": ""
+      }
+    },
+
+    "survivant": {
+      "templates": ["base"]
+    },
+
+    "zombie": {
+      "templates": ["base"]
+    }
+  },
+
+  "Item": {
+
+    "types": [
+      "arme",
+      "munition",
+      "nourriture",
+      "soin",
+      "objet",
+      "statut"
+    ],
+
+    "templates": {
+
+      "base": {
+
+        "quantite": 1,
+
+        "description": "",
+
+        "noteUse": "",
+
+        "typeArme": "tir",
+
+        "modeTir": "semi",
+
+        "bonus": 0,
+
+        "munitions": 0,
+
+        "chargeur": 0,
+
+        "typeMunition": "",
+
+        "portee": "",
+
+        "noise": 0,
+
+        "stressMod": 0,
+
+        "faimMod": 0,
+
+        "soifMod": 0,
+
+        "modFor": 0,
+        "modAgi": 0,
+        "modInt": 0,
+        "modPer": 0,
+        "modStr": 0,
+        "modCombat": 0,
+        "modTir": 0
+      }
+    },
+
+    "arme": {
+      "templates": ["base"]
+    },
+
+    "munition": {
+      "templates": ["base"]
+    },
+
+    "nourriture": {
+      "templates": ["base"]
+    },
+
+    "soin": {
+      "templates": ["base"]
+    },
+
+    "objet": {
+      "templates": ["base"]
+    },
+
+    "statut": {
+      "templates": ["base"]
+    }
+  }
+}

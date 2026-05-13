@@ -1,0 +1,251 @@
+.zombie-d100 {
+  background: #111;
+  color: #ddd;
+  font-family: monospace;
+}
+
+.zombie-d100 h1 {
+  text-align: center;
+  color: #ff3333;
+  text-shadow: 0 0 8px #900;
+}
+
+.zombie-d100 h2 {
+  text-align: center;
+  color: #ff3333;
+}
+
+.zombie-d100 h3 {
+  color: #ff9999;
+  border-bottom: 1px solid #700;
+  padding-bottom: 4px;
+}
+
+.zombie-d100 .block {
+  border: 1px solid #700;
+  background: #181818;
+  padding: 10px;
+  margin: 10px;
+}
+
+.zombie-d100 .stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.zombie-d100 label {
+  display: block;
+  color: #ff9999;
+  margin-top: 5px;
+}
+
+.zombie-d100 input,
+.zombie-d100 textarea,
+.zombie-d100 select {
+  width: 100%;
+  background: #050505;
+  color: white;
+  border: 1px solid #700;
+  padding: 4px;
+}
+
+.zombie-d100 textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.zombie-d100 button {
+  background: #300;
+  color: white;
+  border: 1px solid #900;
+  padding: 4px;
+  cursor: pointer;
+  margin-top: 5px;
+}
+
+.zombie-d100 button:hover {
+  background: #600;
+}
+
+.roll-stat {
+  width: 100%;
+}
+
+.stress-section {
+  background: #1a0000;
+  border: 2px solid #900;
+}
+
+.stress-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stress-line input {
+  text-align: center;
+  font-size: 18px;
+}
+
+.stress-help {
+  text-align: center;
+  color: #ff9999;
+  font-size: 12px;
+}
+
+.item-row {
+  border: 1px solid #550000;
+  background: #0d0d0d;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.item-name {
+  color: #fff;
+  font-size: 15px;
+}
+
+.item-type {
+  color: #ff9999;
+  font-size: 12px;
+}
+
+.item-info {
+  color: #ccc;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.item-actions button {
+  flex: 1;
+  min-width: 90px;
+}
+
+.empty-inventory {
+  text-align: center;
+  color: #ff9999;
+}
+
+.zombie-chat-card {
+  background: linear-gradient(180deg, #151515, #050505);
+  border: 2px solid #700;
+  padding: 10px;
+  color: white;
+  font-family: monospace;
+  box-shadow: 0 0 10px #900;
+}
+
+.zombie-chat-card h2 {
+  text-align: center;
+  color: #ff3333;
+}
+
+.zombie-chat-card .noise {
+  color: #ffcc00;
+}
+
+.zombie-chat-card .danger {
+  color: #ff3333;
+  font-weight: bold;
+}
+
+.status-row {
+  border: 1px solid #aa0000;
+  background: #210000;
+}
+
+.status-row .item-name {
+  color: #ff5555;
+}
+
+.status-row .item-info {
+  color: #ffb3b3;
+}
+
+.infection-block {
+
+  border: 2px solid #006600;
+
+  background: #001100;
+}
+
+.infection-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.infection-block button {
+
+  margin-top: 10px;
+
+  width: 100%;
+
+  background: #003300;
+}
+
+.infection-block button:hover {
+
+  background: #006600;
+}
+
+.zombie-block {
+
+  border: 2px solid #225500;
+
+  background: #0d160d;
+}
+
+.zombie-block button {
+
+  width: 100%;
+
+  margin-top: 10px;
+
+  background: #225500;
+}
+
+.zombie-block button:hover {
+
+  background: #44aa44;
+}
+.mental-danger {
+
+  color: #ff4444;
+
+  font-weight: bold;
+}
+
+.stress-section button {
+
+  margin-top: 10px;
+
+  width: 100%;
+}
+
+.zombie-ai-info {
+
+  margin-top: 10px;
+
+  padding: 10px;
+
+  border: 1px solid #225500;
+
+  background: #111811;
+}
+
+.zombie-ai-info p {
+
+  margin: 2px 0;
+}
