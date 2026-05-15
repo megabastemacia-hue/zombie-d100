@@ -1,6 +1,5 @@
 {
   "Actor": {
-
     "survivant": {
 
       "stats": {
@@ -52,6 +51,17 @@
         "type": "Marcheur",
         "aggressivite": 10,
         "infectionChance": 50
+      },
+
+      "stress": {
+        "value": 100,
+        "mentalState": "mort"
+      },
+
+      "infection": {
+        "infected": true,
+        "stage": 4,
+        "timer": 0
       },
 
       "notes": ""
