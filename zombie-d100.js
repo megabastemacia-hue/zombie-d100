@@ -1,11 +1,45 @@
+Hooks.once("init", async function () {
+  console.log("Zombie Apocalypse D100 | Initialisation");
+
+  Handlebars.registerHelper("eq", function (a, b) {
+    return a === b;
+  });
+
+  Actors.unregisterSheet("core", ActorSheet);
+
+  Actors.registerSheet("zombie-d100", ZombieD100ActorSheet, {
+    types: ["survivant", "zombie"],
+    makeDefault: true
+  });
+
+  Items.unregisterSheet("core", ItemSheet);
+
+  Items.registerSheet("zombie-d100", ZombieD100ItemSheet, {
+    types: ["arme", "munition", "nourriture", "soin", "objet", "statut"],
+    makeDefault: true
+  });
+});
+
 class ZombieD100ActorSheet extends ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["zombie-d100", "sheet", "actor"],
       template: "systems/zombie-d100/templates/actor-sheet.html",
-      width: 840,
-      height: 920,
-      dragDrop: [{ dragSelector: ".item-row", dropSelector: null }]
+      width: 900,
+      height: 950,
+      tabs: [
+        {
+          navSelector: ".sheet-tabs",
+          contentSelector: ".sheet-body",
+          initial: "profil"
+        }
+      ],
+      dragDrop: [
+        {
+          dragSelector: ".item-row",
+          dropSelector: ".zombie-sheet"
+        }
+      ]
     });
   }
 
@@ -15,20 +49,30 @@ class ZombieD100ActorSheet extends ActorSheet {
     context.system = this.actor.system;
     context.isZombie = this.actor.type === "zombie";
 
-    const allItems = this.actor.items.map(item => ({
-      id: item.id,
-      name: item.name,
-      type: item.type,
-      system: item.system,
+    const allItems = this.actor.items.map(item => {
+      const modes = String(item.system.modesAutorises ?? "")
+        .split(",")
+        .map(m => m.trim());
 
-      isWeapon: item.type === "arme",
-      isAmmo: item.type === "munition",
-      isUsable:
-        item.type === "nourriture" ||
-        item.type === "soin" ||
-        item.type === "objet",
-      isStatus: item.type === "statut"
-    }));
+      return {
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        system: item.system,
+
+        isWeapon: item.type === "arme",
+        isAmmo: item.type === "munition",
+        isUsable:
+          item.type === "nourriture" ||
+          item.type === "soin" ||
+          item.type === "objet",
+        isStatus: item.type === "statut",
+
+        canSemi: modes.includes("semi"),
+        canBurst: modes.includes("burst"),
+        canAuto: modes.includes("auto")
+      };
+    });
 
     context.statusItems = allItems.filter(i => i.type === "statut");
     context.inventoryItems = allItems.filter(i => i.type !== "statut");
@@ -43,16 +87,35 @@ class ZombieD100ActorSheet extends ActorSheet {
 
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch {
+    } catch (err) {
       return super._onDrop(event);
     }
 
-    if (data.type !== "Item") return super._onDrop(event);
+    if (data.type !== "Item") {
+      return super._onDrop(event);
+    }
 
-    const droppedItem = await Item.fromDropData(data);
-    if (!droppedItem) return;
+    let droppedItem = null;
+
+    try {
+      if (data.uuid) {
+        droppedItem = await fromUuid(data.uuid);
+      }
+
+      if (!droppedItem && data.id) {
+        droppedItem = game.items.get(data.id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    if (!droppedItem) {
+      ui.notifications.warn("Objet introuvable.");
+      return;
+    }
 
     const itemData = droppedItem.toObject();
+
     const stackableTypes = ["munition", "nourriture", "soin", "objet"];
 
     if (stackableTypes.includes(itemData.type)) {
@@ -75,6 +138,8 @@ class ZombieD100ActorSheet extends ActorSheet {
     }
 
     await this.actor.createEmbeddedDocuments("Item", [itemData]);
+
+    ui.notifications.info(`${itemData.name} ajouté à ${this.actor.name}.`);
   }
 
   _getStatusModifier(stat) {
@@ -195,9 +260,11 @@ class ZombieD100ActorSheet extends ActorSheet {
       return;
     }
 
-    let stage = Number(this.actor.system.infection.stage ?? 0) + 1;
+    const stage = Number(this.actor.system.infection.stage ?? 0) + 1;
 
-    await this.actor.update({ "system.infection.stage": stage });
+    await this.actor.update({
+      "system.infection.stage": stage
+    });
 
     let message = "Fièvre légère et fatigue.";
     if (stage === 2) message = "Tremblements et hallucinations.";
@@ -236,7 +303,9 @@ class ZombieD100ActorSheet extends ActorSheet {
       effect = "Le survivant devient nerveux et paranoïaque.";
     }
 
-    await this.actor.update({ "system.stress.mentalState": state });
+    await this.actor.update({
+      "system.stress.mentalState": state
+    });
 
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -254,28 +323,59 @@ class ZombieD100ActorSheet extends ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
 
+    html.find(".fire-mode").click(async ev => {
+      ev.preventDefault();
+
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
+
+      const item = this.actor.items.get(row.dataset.itemId);
+      if (!item || item.type !== "arme") return;
+
+      const mode = ev.currentTarget.dataset.mode;
+
+      const modesAutorises = String(item.system.modesAutorises ?? "semi")
+        .split(",")
+        .map(m => m.trim());
+
+      if (!modesAutorises.includes(mode)) {
+        ui.notifications.warn(`${item.name} ne peut pas utiliser ce mode.`);
+        return;
+      }
+
+      await item.update({
+        "system.modeTirActuel": mode
+      });
+
+      ui.notifications.info(`${item.name} passe en mode ${mode}.`);
+    });
+
     html.find(".item-open").click(ev => {
       ev.preventDefault();
 
-      const itemId = ev.currentTarget.closest(".item-row").dataset.itemId;
-      const item = this.actor.items.get(itemId);
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
 
+      const item = this.actor.items.get(row.dataset.itemId);
       if (item) item.sheet.render(true);
     });
 
     html.find(".item-delete").click(async ev => {
       ev.preventDefault();
 
-      const itemId = ev.currentTarget.closest(".item-row").dataset.itemId;
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
 
-      await this.actor.deleteEmbeddedDocuments("Item", [itemId]);
+      await this.actor.deleteEmbeddedDocuments("Item", [row.dataset.itemId]);
     });
 
     html.find(".item-use").click(async ev => {
       ev.preventDefault();
 
-      const itemId = ev.currentTarget.closest(".item-row").dataset.itemId;
-      const item = this.actor.items.get(itemId);
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
+
+      const item = this.actor.items.get(row.dataset.itemId);
 
       if (!item || item.type === "arme" || item.type === "statut" || item.type === "munition") return;
 
@@ -285,7 +385,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       const soifMod = Number(item.system.soifMod ?? 0);
       const noteUse = item.system.noteUse || "";
 
-      let updates = {};
+      const updates = {};
 
       if (stressMod !== 0) {
         const current = Number(this.actor.system.stress?.value ?? 0);
@@ -307,7 +407,9 @@ class ZombieD100ActorSheet extends ActorSheet {
       }
 
       if (quantite > 1) {
-        await item.update({ "system.quantite": quantite - 1 });
+        await item.update({
+          "system.quantite": quantite - 1
+        });
       } else {
         await this.actor.deleteEmbeddedDocuments("Item", [item.id]);
       }
@@ -330,17 +432,39 @@ class ZombieD100ActorSheet extends ActorSheet {
     html.find(".item-attack").click(async ev => {
       ev.preventDefault();
 
-      const itemId = ev.currentTarget.closest(".item-row").dataset.itemId;
-      const item = this.actor.items.get(itemId);
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
 
+      const item = this.actor.items.get(row.dataset.itemId);
       if (!item || item.type !== "arme") return;
 
       const typeArme = item.system.typeArme || "tir";
-      const modeTir = item.system.modeTir || "semi";
 
-      let coutMunition = 1;
+      const modesAutorises = String(item.system.modesAutorises ?? "semi")
+        .split(",")
+        .map(m => m.trim())
+        .filter(m => m.length > 0);
+
+      let modeTir = item.system.modeTirActuel || "semi";
+
+      if (typeArme === "melee") {
+        modeTir = "melee";
+      }
+
+      if (!modesAutorises.includes(modeTir)) {
+        ui.notifications.warn(`${item.name} ne peut pas utiliser le mode ${modeTir}.`);
+        return;
+      }
+
+      let coutMunition = 0;
       let bonusMode = 0;
-      let modeLabel = "Semi-auto";
+      let modeLabel = "Corps à corps";
+
+      if (modeTir === "semi") {
+        coutMunition = 1;
+        bonusMode = 0;
+        modeLabel = "Semi-auto";
+      }
 
       if (modeTir === "burst") {
         coutMunition = 3;
@@ -354,7 +478,7 @@ class ZombieD100ActorSheet extends ActorSheet {
         modeLabel = "Automatique";
       }
 
-      let bonus = Number(item.system.bonus ?? 0) + bonusMode;
+      const bonus = Number(item.system.bonus ?? 0) + bonusMode;
 
       const statKey = typeArme === "melee" ? "combat" : "tir";
       const statLabel = typeArme === "melee" ? "Combat rapproché" : `Tir - ${modeLabel}`;
@@ -370,11 +494,14 @@ class ZombieD100ActorSheet extends ActorSheet {
         }
 
         ammoAfter = ammoBefore - coutMunition;
-        await item.update({ "system.munitions": ammoAfter });
+
+        await item.update({
+          "system.munitions": ammoAfter
+        });
       }
 
       const extraInfo = `
-        <p><b>Mode de tir :</b> ${modeLabel}</p>
+        <p><b>Mode utilisé :</b> ${modeLabel}</p>
         ${typeArme !== "melee" ? `<p><b>Munitions consommées :</b> ${coutMunition}</p>` : ""}
         ${typeArme !== "melee" ? `<p><b>Munitions restantes :</b> ${ammoAfter}</p>` : ""}
       `;
@@ -385,10 +512,17 @@ class ZombieD100ActorSheet extends ActorSheet {
     html.find(".item-reload").click(async ev => {
       ev.preventDefault();
 
-      const itemId = ev.currentTarget.closest(".item-row").dataset.itemId;
-      const weapon = this.actor.items.get(itemId);
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
+
+      const weapon = this.actor.items.get(row.dataset.itemId);
 
       if (!weapon || weapon.type !== "arme") return;
+
+      if (weapon.system.typeArme === "melee") {
+        ui.notifications.warn("Une arme de corps à corps ne se recharge pas.");
+        return;
+      }
 
       const typeMunition = weapon.system.typeMunition;
 
@@ -397,7 +531,10 @@ class ZombieD100ActorSheet extends ActorSheet {
         return;
       }
 
-      const ammoItem = this.actor.items.find(i => i.type === "munition" && i.name === typeMunition);
+      const ammoItem = this.actor.items.find(i =>
+        i.type === "munition" &&
+        i.name === typeMunition
+      );
 
       if (!ammoItem) {
         ui.notifications.warn(`Aucune munition ${typeMunition} trouvée.`);
@@ -422,8 +559,13 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       const used = Math.min(missing, reserve);
 
-      await weapon.update({ "system.munitions": currentAmmo + used });
-      await ammoItem.update({ "system.quantite": reserve - used });
+      await weapon.update({
+        "system.munitions": currentAmmo + used
+      });
+
+      await ammoItem.update({
+        "system.quantite": reserve - used
+      });
 
       ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -491,8 +633,8 @@ class ZombieD100ItemSheet extends ItemSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["zombie-d100", "sheet", "item"],
       template: "systems/zombie-d100/templates/item-sheet.html",
-      width: 540,
-      height: 720
+      width: 560,
+      height: 760
     });
   }
 
@@ -511,21 +653,3 @@ class ZombieD100ItemSheet extends ItemSheet {
     return context;
   }
 }
-
-Hooks.once("init", async function () {
-  console.log("Zombie Apocalypse D100 | Initialisation");
-
-  Actors.unregisterSheet("core", ActorSheet);
-
-  Actors.registerSheet("zombie-d100", ZombieD100ActorSheet, {
-    types: ["survivant", "zombie"],
-    makeDefault: true
-  });
-
-  Items.unregisterSheet("core", ItemSheet);
-
-  Items.registerSheet("zombie-d100", ZombieD100ItemSheet, {
-    types: ["arme", "munition", "nourriture", "soin", "objet", "statut"],
-    makeDefault: true
-  });
-});
