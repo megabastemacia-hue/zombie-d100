@@ -44,7 +44,28 @@ class ZombieD100ActorSheet extends ActorSheet {
 
     const context = super.getData();
 
-    context.system = this.actor.system;
+    const system = foundry.utils.deepClone(this.actor.system);
+
+const statusItems = this.actor.items.filter(i => i.type === "statut");
+
+for (const status of statusItems) {
+
+  system.stats.for += Number(status.system.modFor || 0);
+
+  system.stats.agi += Number(status.system.modAgi || 0);
+
+  system.stats.int += Number(status.system.modInt || 0);
+
+  system.stats.per += Number(status.system.modPer || 0);
+
+  system.stats.str += Number(status.system.modStr || 0);
+
+  system.stats.combat += Number(status.system.modCombat || 0);
+
+  system.stats.tir += Number(status.system.modTir || 0);
+}
+
+context.system = system;
 
     context.isZombie = this.actor.type === "zombie";
 
