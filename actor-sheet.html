@@ -35,21 +35,131 @@
     <a class="item" data-tab="stats">Stats</a>
     <a class="item" data-tab="survie">Survie</a>
     <a class="item" data-tab="inventaire">Inventaire</a>
+    <a class="item" data-tab="equipement">Équipement</a>
     <a class="item" data-tab="statuts">Statuts</a>
     <a class="item" data-tab="notes">Notes</a>
   </nav>
 
   <section class="sheet-body">
 
+    <!-- PROFIL -->
+
     <div class="tab active" data-group="primary" data-tab="profil">
+
       <section class="block">
         <h2>🧍 Profil du survivant</h2>
 
-        <div class="status-summary">
-          <div><span>Stress</span><strong>{{system.stress.value}} / 100</strong></div>
-          <div><span>État mental</span><strong>{{system.stress.mentalState}}</strong></div>
-          <div><span>Infection</span><strong>{{system.infection.infected}}</strong></div>
-          <div><span>Stade</span><strong>{{system.infection.stage}}</strong></div>
+        <div class="profile-equipment-layout">
+
+          <div class="equipment-column">
+
+            <div class="equipment-slot" data-slot="head" {{#if equippedSlots.head}}data-item-id="{{equippedSlots.head.id}}"{{/if}}>
+              <span class="slot-label">🪖 Tête</span>
+              <strong>{{#if equippedSlots.head}}{{equippedSlots.head.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.head}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="body" {{#if equippedSlots.body}}data-item-id="{{equippedSlots.body.id}}"{{/if}}>
+              <span class="slot-label">🦺 Corps</span>
+              <strong>{{#if equippedSlots.body}}{{equippedSlots.body.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.body}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="primary" {{#if equippedSlots.primary}}data-item-id="{{equippedSlots.primary.id}}"{{/if}}>
+              <span class="slot-label">🔫 Main principale</span>
+              <strong>{{#if equippedSlots.primary}}{{equippedSlots.primary.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.primary}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="secondary" {{#if equippedSlots.secondary}}data-item-id="{{equippedSlots.secondary.id}}"{{/if}}>
+              <span class="slot-label">🪓 Main secondaire</span>
+              <strong>{{#if equippedSlots.secondary}}{{equippedSlots.secondary.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.secondary}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+          </div>
+
+          <div class="character-center-card">
+            <div class="survivor-silhouette">🧍</div>
+
+            <div class="status-summary">
+              <div><span>Stress</span><strong>{{system.stress.value}} / 100</strong></div>
+              <div><span>État mental</span><strong>{{system.stress.mentalState}}</strong></div>
+              <div><span>Faim</span><strong>{{system.survie.faim}} / 100</strong></div>
+              <div><span>Soif</span><strong>{{system.survie.soif}} / 100</strong></div>
+              <div><span>Infection</span><strong>{{system.infection.infected}}</strong></div>
+              <div><span>Stade</span><strong>{{system.infection.stage}}</strong></div>
+            </div>
+          </div>
+
+          <div class="equipment-column">
+
+            <div class="equipment-slot" data-slot="bag" {{#if equippedSlots.bag}}data-item-id="{{equippedSlots.bag.id}}"{{/if}}>
+              <span class="slot-label">🎒 Sac</span>
+              <strong>{{#if equippedSlots.bag}}{{equippedSlots.bag.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.bag}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="hands" {{#if equippedSlots.hands}}data-item-id="{{equippedSlots.hands.id}}"{{/if}}>
+              <span class="slot-label">🧤 Gants</span>
+              <strong>{{#if equippedSlots.hands}}{{equippedSlots.hands.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.hands}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="feet" {{#if equippedSlots.feet}}data-item-id="{{equippedSlots.feet.id}}"{{/if}}>
+              <span class="slot-label">👢 Bottes</span>
+              <strong>{{#if equippedSlots.feet}}{{equippedSlots.feet.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.feet}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+            <div class="equipment-slot" data-slot="accessory" {{#if equippedSlots.accessory}}data-item-id="{{equippedSlots.accessory.id}}"{{/if}}>
+              <span class="slot-label">🎧 Accessoire</span>
+              <strong>{{#if equippedSlots.accessory}}{{equippedSlots.accessory.name}}{{else}}Vide{{/if}}</strong>
+              {{#if equippedSlots.accessory}}
+              <div class="slot-actions">
+                <button type="button" class="item-open">Modifier</button>
+                <button type="button" class="unequip-item">Retirer</button>
+              </div>
+              {{/if}}
+            </div>
+
+          </div>
+
         </div>
       </section>
 
@@ -57,7 +167,10 @@
         <h2>🩸 Blessures visibles</h2>
         <textarea name="system.blessures">{{system.blessures}}</textarea>
       </section>
+
     </div>
+
+    <!-- STATS -->
 
     <div class="tab" data-group="primary" data-tab="stats">
       <section class="block">
@@ -74,6 +187,8 @@
         </div>
       </section>
     </div>
+
+    <!-- SURVIE -->
 
     <div class="tab" data-group="primary" data-tab="survie">
       <section class="block">
@@ -124,6 +239,8 @@
       </section>
     </div>
 
+    <!-- INVENTAIRE -->
+
     <div class="tab" data-group="primary" data-tab="inventaire">
       <section class="block">
         <h2>🔫 Armes</h2>
@@ -157,17 +274,9 @@
           <div class="item-actions">
             {{#unless (eq item.system.typeArme "melee")}}
             <div class="fire-mode-buttons">
-              {{#if item.canSemi}}
-              <button type="button" class="fire-mode" data-mode="semi">Semi</button>
-              {{/if}}
-
-              {{#if item.canBurst}}
-              <button type="button" class="fire-mode" data-mode="burst">Rafale</button>
-              {{/if}}
-
-              {{#if item.canAuto}}
-              <button type="button" class="fire-mode" data-mode="auto">Auto</button>
-              {{/if}}
+              {{#if item.canSemi}}<button type="button" class="fire-mode" data-mode="semi">Semi</button>{{/if}}
+              {{#if item.canBurst}}<button type="button" class="fire-mode" data-mode="burst">Rafale</button>{{/if}}
+              {{#if item.canAuto}}<button type="button" class="fire-mode" data-mode="auto">Auto</button>{{/if}}
             </div>
             {{/unless}}
 
@@ -248,6 +357,60 @@
       </section>
     </div>
 
+    <!-- ÉQUIPEMENT -->
+
+    <div class="tab" data-group="primary" data-tab="equipement">
+      <section class="block">
+        <h2>🎒 Équipements possédés</h2>
+
+        {{#each equipmentItems as |item|}}
+
+        <div class="item-row" data-item-id="{{item.id}}">
+          <div class="item-main">
+            <b>🎒 {{item.name}}</b>
+
+            <span>
+              Slot : {{item.system.slot}}
+              |
+              Équipé : {{item.system.equipped}}
+            </span>
+
+            <span>
+              FOR {{item.system.modFor}}
+              |
+              AGI {{item.system.modAgi}}
+              |
+              INT {{item.system.modInt}}
+              |
+              PER {{item.system.modPer}}
+              |
+              STR {{item.system.modStr}}
+              |
+              COMBAT {{item.system.modCombat}}
+              |
+              TIR {{item.system.modTir}}
+            </span>
+
+            {{#if item.system.description}}
+            <p class="item-description">{{item.system.description}}</p>
+            {{/if}}
+          </div>
+
+          <div class="item-actions">
+            <button type="button" class="equip-item">Équiper</button>
+            <button type="button" class="unequip-item">Retirer</button>
+            <button type="button" class="item-open">Modifier</button>
+            <button type="button" class="item-delete">Supprimer</button>
+          </div>
+        </div>
+
+        {{/each}}
+
+      </section>
+    </div>
+
+    <!-- STATUTS -->
+
     <div class="tab" data-group="primary" data-tab="statuts">
       <section class="block">
         <h2>☣ Statuts actifs</h2>
@@ -281,6 +444,8 @@
         {{/each}}
       </section>
     </div>
+
+    <!-- NOTES -->
 
     <div class="tab" data-group="primary" data-tab="notes">
       <section class="block">
