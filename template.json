@@ -1,7 +1,6 @@
 {
   "Actor": {
     "survivant": {
-
       "stats": {
         "for": 30,
         "agi": 30,
@@ -28,15 +27,23 @@
         "timer": 0
       },
 
+      "equipment": {
+        "head": "",
+        "body": "",
+        "bag": "",
+        "primary": "",
+        "secondary": "",
+        "hands": "",
+        "feet": "",
+        "accessory": ""
+      },
+
       "blessures": "",
-
       "statuts": "",
-
       "notes": ""
     },
 
     "zombie": {
-
       "stats": {
         "for": 40,
         "agi": 20,
@@ -69,96 +76,72 @@
   },
 
   "Item": {
-
     "arme": {
-
       "description": "",
-
       "typeArme": "tir",
-
       "bonus": 0,
-
       "portee": "",
-
       "modesAutorises": "semi",
-
       "modeTirActuel": "semi",
-
       "munitions": 0,
-
       "chargeur": 0,
-
       "typeMunition": ""
     },
 
     "munition": {
-
       "description": "",
-
       "quantite": 1
     },
 
     "nourriture": {
-
       "description": "",
-
       "quantite": 1,
-
       "stressMod": 0,
-
       "faimMod": 0,
-
       "soifMod": 0,
-
       "noteUse": ""
     },
 
     "soin": {
-
       "description": "",
-
       "quantite": 1,
-
       "stressMod": 0,
-
       "faimMod": 0,
-
       "soifMod": 0,
-
       "noteUse": ""
     },
 
     "objet": {
-
       "description": "",
-
       "quantite": 1,
-
       "stressMod": 0,
-
       "faimMod": 0,
-
       "soifMod": 0,
+      "noteUse": ""
+    },
 
+    "equipement": {
+      "description": "",
+      "slot": "body",
+      "equipped": false,
+      "modFor": 0,
+      "modAgi": 0,
+      "modInt": 0,
+      "modPer": 0,
+      "modStr": 0,
+      "modCombat": 0,
+      "modTir": 0,
       "noteUse": ""
     },
 
     "statut": {
-
       "description": "",
-
       "modFor": 0,
-
       "modAgi": 0,
-
       "modInt": 0,
-
       "modPer": 0,
-
       "modStr": 0,
-
       "modCombat": 0,
-
       "modTir": 0
     }
   }
