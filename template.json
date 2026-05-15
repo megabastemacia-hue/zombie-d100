@@ -1,79 +1,155 @@
 {
   "Actor": {
-    "types": ["survivant", "zombie"],
-    "templates": {
-      "base": {
-        "stats": {
-          "for": 10,
-          "agi": 10,
-          "int": 10,
-          "per": 10,
-          "str": 10,
-          "combat": 10,
-          "tir": 10
-        },
-        "stress": {
-          "value": 0,
-          "mentalState": "stable"
-        },
-        "survie": {
-          "faim": 0,
-          "soif": 0
-        },
-        "infection": {
-          "infected": false,
-          "stage": 0,
-          "timer": 0
-        },
-        "zombie": {
-          "type": "rodeur",
-          "aggressivite": 1,
-          "infectionChance": 25
-        },
-        "blessures": "",
-        "statuts": ""
-      }
+
+    "survivant": {
+
+      "stats": {
+        "for": 30,
+        "agi": 30,
+        "int": 30,
+        "per": 30,
+        "str": 30,
+        "combat": 30,
+        "tir": 30
+      },
+
+      "stress": {
+        "value": 0,
+        "mentalState": "stable"
+      },
+
+      "survie": {
+        "faim": 0,
+        "soif": 0
+      },
+
+      "infection": {
+        "infected": false,
+        "stage": 0,
+        "timer": 0
+      },
+
+      "blessures": "",
+
+      "statuts": "",
+
+      "notes": ""
     },
-    "survivant": { "templates": ["base"] },
-    "zombie": { "templates": ["base"] }
+
+    "zombie": {
+
+      "stats": {
+        "for": 40,
+        "agi": 20,
+        "int": 0,
+        "per": 30,
+        "str": 100,
+        "combat": 45,
+        "tir": 0
+      },
+
+      "zombie": {
+        "type": "Marcheur",
+        "aggressivite": 10,
+        "infectionChance": 50
+      },
+
+      "notes": ""
+    }
   },
 
   "Item": {
-    "types": ["arme", "munition", "nourriture", "soin", "objet", "statut"],
-    "templates": {
-      "base": {
-        "quantite": 1,
-        "description": "",
-        "noteUse": "",
 
-        "typeArme": "tir",
-        "modesAutorises": "semi",
-        "modeTirActuel": "semi",
+    "arme": {
 
-        "bonus": 0,
-        "munitions": 0,
-        "chargeur": 0,
-        "typeMunition": "",
-        "portee": "",
+      "description": "",
 
-        "stressMod": 0,
-        "faimMod": 0,
-        "soifMod": 0,
+      "typeArme": "tir",
 
-        "modFor": 0,
-        "modAgi": 0,
-        "modInt": 0,
-        "modPer": 0,
-        "modStr": 0,
-        "modCombat": 0,
-        "modTir": 0
-      }
+      "bonus": 0,
+
+      "portee": "",
+
+      "modesAutorises": "semi",
+
+      "modeTirActuel": "semi",
+
+      "munitions": 0,
+
+      "chargeur": 0,
+
+      "typeMunition": ""
     },
-    "arme": { "templates": ["base"] },
-    "munition": { "templates": ["base"] },
-    "nourriture": { "templates": ["base"] },
-    "soin": { "templates": ["base"] },
-    "objet": { "templates": ["base"] },
-    "statut": { "templates": ["base"] }
+
+    "munition": {
+
+      "description": "",
+
+      "quantite": 1
+    },
+
+    "nourriture": {
+
+      "description": "",
+
+      "quantite": 1,
+
+      "stressMod": 0,
+
+      "faimMod": 0,
+
+      "soifMod": 0,
+
+      "noteUse": ""
+    },
+
+    "soin": {
+
+      "description": "",
+
+      "quantite": 1,
+
+      "stressMod": 0,
+
+      "faimMod": 0,
+
+      "soifMod": 0,
+
+      "noteUse": ""
+    },
+
+    "objet": {
+
+      "description": "",
+
+      "quantite": 1,
+
+      "stressMod": 0,
+
+      "faimMod": 0,
+
+      "soifMod": 0,
+
+      "noteUse": ""
+    },
+
+    "statut": {
+
+      "description": "",
+
+      "modFor": 0,
+
+      "modAgi": 0,
+
+      "modInt": 0,
+
+      "modPer": 0,
+
+      "modStr": 0,
+
+      "modCombat": 0,
+
+      "modTir": 0
+    }
   }
 }
