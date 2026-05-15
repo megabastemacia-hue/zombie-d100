@@ -219,6 +219,101 @@ class ZombieD100ActorSheet extends ActorSheet {
     });
   }
 
+  async _findStatusInCompendium(name) {
+    const pack = game.packs.get("world.statuts");
+
+    if (!pack) {
+      ui.notifications.warn("Compendium world.statuts introuvable.");
+      return null;
+    }
+
+    await pack.getIndex();
+
+    const entry = pack.index.find(e => e.name === name);
+
+    if (!entry) {
+      console.warn(`Statut introuvable dans world.statuts : ${name}`);
+      return null;
+    }
+
+    return await pack.getDocument(entry._id);
+  }
+
+  async _addStatus(name) {
+    const existing = this.actor.items.find(i =>
+      i.type === "statut" &&
+      i.name === name
+    );
+
+    if (existing) return;
+
+    const statusDoc = await this._findStatusInCompendium(name);
+
+    if (!statusDoc) return;
+
+    await this.actor.createEmbeddedDocuments("Item", [
+      statusDoc.toObject()
+    ]);
+
+    ui.notifications.info(`${this.actor.name} gagne le statut : ${name}`);
+  }
+
+  async _removeStatus(name) {
+    const existing = this.actor.items.find(i =>
+      i.type === "statut" &&
+      i.name === name
+    );
+
+    if (!existing) return;
+
+    await this.actor.deleteEmbeddedDocuments("Item", [existing.id]);
+
+    ui.notifications.info(`${this.actor.name} perd le statut : ${name}`);
+  }
+
+  async _updateAutomaticStatuses() {
+    const stress = Number(this.actor.system.stress?.value ?? 0);
+    const faim = Number(this.actor.system.survie?.faim ?? 0);
+    const soif = Number(this.actor.system.survie?.soif ?? 0);
+    const infectionStage = Number(this.actor.system.infection?.stage ?? 0);
+
+    if (stress >= 50) {
+      await this._addStatus("😰 Stressé");
+    } else {
+      await this._removeStatus("😰 Stressé");
+    }
+
+    if (stress >= 75) {
+      await this._addStatus("😱 Panique");
+    } else {
+      await this._removeStatus("😱 Panique");
+    }
+
+    if (stress >= 90) {
+      await this._addStatus("🤯 Hallucinations");
+    } else {
+      await this._removeStatus("🤯 Hallucinations");
+    }
+
+    if (faim >= 80) {
+      await this._addStatus("💞 Affamé");
+    } else {
+      await this._removeStatus("💞 Affamé");
+    }
+
+    if (soif >= 80) {
+      await this._addStatus("💧 Déshydraté");
+    } else {
+      await this._removeStatus("💧 Déshydraté");
+    }
+
+    if (infectionStage >= 2) {
+      await this._addStatus("☣️ Fièvre infectieuse");
+    } else {
+      await this._removeStatus("☣️ Fièvre infectieuse");
+    }
+  }
+
   async _checkMentalState() {
     const stress = Number(this.actor.system.stress?.value ?? 0);
 
@@ -231,23 +326,25 @@ class ZombieD100ActorSheet extends ActorSheet {
     }
 
     if (stress >= 50) {
+      state = "stressé";
+      message = "Le survivant est sous pression et commence à perdre en efficacité.";
+    }
+
+    if (stress >= 75) {
       state = "panique";
       message = "Le survivant tremble, respire mal et perd sa concentration.";
     }
 
-    if (stress >= 75) {
+    if (stress >= 90) {
       state = "hallucinations";
       message = "Le survivant commence à voir ou entendre des choses inexistantes.";
-    }
-
-    if (stress >= 90) {
-      state = "crise mentale";
-      message = "Le survivant perd presque totalement le contrôle.";
     }
 
     await this.actor.update({
       "system.stress.mentalState": state
     });
+
+    await this._updateAutomaticStatuses();
 
     ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -274,6 +371,8 @@ class ZombieD100ActorSheet extends ActorSheet {
     await this.actor.update({
       "system.infection.stage": stage
     });
+
+    await this._updateAutomaticStatuses();
 
     let message = "Fièvre légère et fatigue.";
     if (stage === 2) message = "Tremblements et hallucinations.";
@@ -428,6 +527,8 @@ class ZombieD100ActorSheet extends ActorSheet {
       } else {
         await this.actor.deleteEmbeddedDocuments("Item", [item.id]);
       }
+
+      await this._updateAutomaticStatuses();
 
       ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -601,6 +702,8 @@ class ZombieD100ActorSheet extends ActorSheet {
       await this.actor.update({
         "system.stress.value": Math.min(100, current + 5)
       });
+
+      await this._updateAutomaticStatuses();
     });
 
     html.find(".stress-minus").click(async ev => {
@@ -611,6 +714,8 @@ class ZombieD100ActorSheet extends ActorSheet {
       await this.actor.update({
         "system.stress.value": Math.max(0, current - 5)
       });
+
+      await this._updateAutomaticStatuses();
     });
 
     html.find(".mental-check").click(async ev => {
