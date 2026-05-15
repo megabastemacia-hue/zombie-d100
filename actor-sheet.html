@@ -1,43 +1,301 @@
-{
-  "id": "zombie-d100",
-  "title": "Zombie Apocalypse D100",
-  "description": "Système D100 survival horror zombie sans points de vie.",
-  "authors": [
-    {
-      "name": "megabaste"
-    }
-  ],
-  "version": "0.1.0",
-  "compatibility": {
-    "minimum": 11,
-    "verified": 11,
-    "maximum": 14
-  },
-  "esmodules": [
-    "zombie-d100.js"
-  ],
-  "styles": [
-    "styles/zombie-d100.css"
-  ],
-  "template": "template.json",
-  "packs": [],
-  "languages": [],
-  "grid": {
-    "distance": 1,
-    "units": "m"
-  },
-  "documentTypes": {
-    "Actor": {
-      "survivant": {},
-      "zombie": {}
-    },
-    "Item": {
-      "arme": {},
-      "munition": {},
-      "nourriture": {},
-      "soin": {},
-      "objet": {},
-      "statut": {}
-    }
-  }
-}
+<form class="{{cssClass}} zombie-sheet" autocomplete="off">
+
+  <header class="sheet-header">
+    <div class="sheet-title">
+      <div class="name-row">
+        <span class="biohazard">☣</span>
+        <input class="actor-name-input" type="text" name="name" value="{{actor.name}}" placeholder="Nom du survivant" />
+        <span class="biohazard">☣</span>
+      </div>
+      <p>Dossier de survivant — Protocole quarantaine</p>
+    </div>
+  </header>
+
+  {{#if isZombie}}
+
+  <section class="zombie-panel">
+    <h2>🧟 Fiche Zombie</h2>
+
+    <div class="grid-2">
+      <div class="field"><label>Type</label><input type="text" name="system.zombie.type" value="{{system.zombie.type}}" /></div>
+      <div class="field"><label>Agressivité</label><input type="number" name="system.zombie.aggressivite" value="{{system.zombie.aggressivite}}" /></div>
+      <div class="field"><label>Chance infection</label><input type="number" name="system.zombie.infectionChance" value="{{system.zombie.infectionChance}}" /></div>
+      <div class="field"><label>Combat</label><input type="number" name="system.stats.combat" value="{{system.stats.combat}}" /></div>
+      <div class="field"><label>Force</label><input type="number" name="system.stats.for" value="{{system.stats.for}}" /></div>
+      <div class="field"><label>Agilité</label><input type="number" name="system.stats.agi" value="{{system.stats.agi}}" /></div>
+    </div>
+
+    <button type="button" class="big-danger-btn zombie-attack">🧟 Attaque Zombie</button>
+  </section>
+
+  {{else}}
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item active" data-tab="profil">Profil</a>
+    <a class="item" data-tab="stats">Stats</a>
+    <a class="item" data-tab="survie">Survie</a>
+    <a class="item" data-tab="inventaire">Inventaire</a>
+    <a class="item" data-tab="statuts">Statuts</a>
+    <a class="item" data-tab="notes">Notes</a>
+  </nav>
+
+  <section class="sheet-body">
+
+    <div class="tab active" data-group="primary" data-tab="profil">
+      <section class="block">
+        <h2>🧍 Profil du survivant</h2>
+
+        <div class="status-summary">
+          <div><span>Stress</span><strong>{{system.stress.value}} / 100</strong></div>
+          <div><span>État mental</span><strong>{{system.stress.mentalState}}</strong></div>
+          <div><span>Infection</span><strong>{{system.infection.infected}}</strong></div>
+          <div><span>Stade</span><strong>{{system.infection.stage}}</strong></div>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>🩸 Blessures visibles</h2>
+        <textarea name="system.blessures">{{system.blessures}}</textarea>
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="stats">
+      <section class="block">
+        <h2>📊 Caractéristiques</h2>
+
+        <div class="stat-grid">
+          <div class="stat-card"><label>FOR</label><input type="number" name="system.stats.for" value="{{system.stats.for}}" /><button type="button" class="roll-stat" data-stat="for" data-label="Force">Tester</button></div>
+          <div class="stat-card"><label>AGI</label><input type="number" name="system.stats.agi" value="{{system.stats.agi}}" /><button type="button" class="roll-stat" data-stat="agi" data-label="Agilité">Tester</button></div>
+          <div class="stat-card"><label>INT</label><input type="number" name="system.stats.int" value="{{system.stats.int}}" /><button type="button" class="roll-stat" data-stat="int" data-label="Intelligence">Tester</button></div>
+          <div class="stat-card"><label>PER</label><input type="number" name="system.stats.per" value="{{system.stats.per}}" /><button type="button" class="roll-stat" data-stat="per" data-label="Perception">Tester</button></div>
+          <div class="stat-card"><label>STR</label><input type="number" name="system.stats.str" value="{{system.stats.str}}" /><button type="button" class="roll-stat" data-stat="str" data-label="Sang-froid">Tester</button></div>
+          <div class="stat-card"><label>COMBAT</label><input type="number" name="system.stats.combat" value="{{system.stats.combat}}" /><button type="button" class="roll-stat" data-stat="combat" data-label="Combat">Tester</button></div>
+          <div class="stat-card"><label>TIR</label><input type="number" name="system.stats.tir" value="{{system.stats.tir}}" /><button type="button" class="roll-stat" data-stat="tir" data-label="Tir">Tester</button></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="survie">
+      <section class="block">
+        <h2>🧠 Stress</h2>
+
+        <div class="survival-meter">
+          <label>Stress</label>
+          <progress value="{{system.stress.value}}" max="100"></progress>
+          <input type="number" name="system.stress.value" value="{{system.stress.value}}" />
+          <p>État mental : <b>{{system.stress.mentalState}}</b></p>
+        </div>
+
+        <div class="button-line">
+          <button type="button" class="stress-plus">+5 Stress</button>
+          <button type="button" class="stress-minus">-5 Stress</button>
+          <button type="button" class="mental-check">Vérifier état mental</button>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>🍖 Besoins vitaux</h2>
+
+        <div class="survival-meter">
+          <label>Faim</label>
+          <progress value="{{system.survie.faim}}" max="100"></progress>
+          <input type="number" name="system.survie.faim" value="{{system.survie.faim}}" />
+          <p>0 = rassasié | 100 = affamé</p>
+        </div>
+
+        <div class="survival-meter">
+          <label>Soif</label>
+          <progress value="{{system.survie.soif}}" max="100"></progress>
+          <input type="number" name="system.survie.soif" value="{{system.survie.soif}}" />
+          <p>0 = hydraté | 100 = déshydraté</p>
+        </div>
+      </section>
+
+      <section class="block infection-block">
+        <h2>☣ Infection</h2>
+
+        <div class="grid-2">
+          <div class="field"><label>Infecté</label><input type="checkbox" name="system.infection.infected" {{checked system.infection.infected}} /></div>
+          <div class="field"><label>Stade</label><input type="number" name="system.infection.stage" value="{{system.infection.stage}}" /></div>
+          <div class="field"><label>Temps restant</label><input type="number" name="system.infection.timer" value="{{system.infection.timer}}" /></div>
+        </div>
+
+        <button type="button" class="big-danger-btn infection-progress">Progression infection</button>
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="inventaire">
+
+      <section class="block">
+        <h2>🔫 Armes</h2>
+
+        {{#each inventoryItems as |item|}}
+        {{#if item.isWeapon}}
+
+        <div class="item-row" data-item-id="{{item.id}}">
+          <div class="item-main">
+            <b>🔫 {{item.name}}</b>
+
+            {{#if (eq item.system.typeArme "melee")}}
+            <span>Corps à corps — Bonus : {{item.system.bonus}}</span>
+            {{else}}
+            <span>
+              Mode actuel : {{item.system.modeTirActuel}}
+              —
+              Modes : {{item.system.modesAutorises}}
+              —
+              {{item.system.munitions}} / {{item.system.chargeur}}
+              —
+              {{item.system.typeMunition}}
+            </span>
+            {{/if}}
+
+            {{#if item.system.description}}
+            <p class="item-description">{{item.system.description}}</p>
+            {{/if}}
+          </div>
+
+          <div class="item-actions">
+
+            {{#unless (eq item.system.typeArme "melee")}}
+            <div class="fire-mode-buttons">
+
+              {{#if item.canSemi}}
+              <button type="button" class="fire-mode" data-mode="semi">Semi</button>
+              {{/if}}
+
+              {{#if item.canBurst}}
+              <button type="button" class="fire-mode" data-mode="burst">Rafale</button>
+              {{/if}}
+
+              {{#if item.canAuto}}
+              <button type="button" class="fire-mode" data-mode="auto">Auto</button>
+              {{/if}}
+
+            </div>
+            {{/unless}}
+
+            <button type="button" class="item-attack">Attaque</button>
+
+            {{#unless (eq item.system.typeArme "melee")}}
+            <button type="button" class="item-reload">Recharger</button>
+            {{/unless}}
+
+            <button type="button" class="item-open">Modifier</button>
+            <button type="button" class="item-delete">Supprimer</button>
+          </div>
+        </div>
+
+        {{/if}}
+        {{/each}}
+      </section>
+
+      <section class="block">
+        <h2>📦 Munitions</h2>
+
+        {{#each inventoryItems as |item|}}
+        {{#if item.isAmmo}}
+
+        <div class="item-row" data-item-id="{{item.id}}">
+          <div class="item-main">
+            <b>📦 {{item.name}}</b>
+            <span>Quantité : {{item.system.quantite}}</span>
+
+            {{#if item.system.description}}
+            <p class="item-description">{{item.system.description}}</p>
+            {{/if}}
+          </div>
+
+          <div class="item-actions">
+            <button type="button" class="item-open">Modifier</button>
+            <button type="button" class="item-delete">Supprimer</button>
+          </div>
+        </div>
+
+        {{/if}}
+        {{/each}}
+      </section>
+
+      <section class="block">
+        <h2>🍖 Nourriture / Soins / Objets</h2>
+
+        {{#each inventoryItems as |item|}}
+        {{#if item.isUsable}}
+
+        <div class="item-row" data-item-id="{{item.id}}">
+          <div class="item-main">
+            <b>🧪 {{item.name}}</b>
+            <span>
+              Qté {{item.system.quantite}}
+              |
+              Stress {{item.system.stressMod}}
+              |
+              Faim {{item.system.faimMod}}
+              |
+              Soif {{item.system.soifMod}}
+            </span>
+
+            {{#if item.system.description}}
+            <p class="item-description">{{item.system.description}}</p>
+            {{/if}}
+          </div>
+
+          <div class="item-actions">
+            <button type="button" class="item-use">Utiliser</button>
+            <button type="button" class="item-open">Modifier</button>
+            <button type="button" class="item-delete">Supprimer</button>
+          </div>
+        </div>
+
+        {{/if}}
+        {{/each}}
+      </section>
+
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="statuts">
+      <section class="block">
+        <h2>☣ Statuts actifs</h2>
+
+        {{#each statusItems as |item|}}
+
+        <div class="item-row status-row" data-item-id="{{item.id}}">
+          <div class="item-main">
+            <b>☣ {{item.name}}</b>
+            <span>
+              FOR {{item.system.modFor}} |
+              AGI {{item.system.modAgi}} |
+              INT {{item.system.modInt}} |
+              PER {{item.system.modPer}} |
+              STR {{item.system.modStr}} |
+              COMBAT {{item.system.modCombat}} |
+              TIR {{item.system.modTir}}
+            </span>
+
+            {{#if item.system.description}}
+            <p class="item-description">{{item.system.description}}</p>
+            {{/if}}
+          </div>
+
+          <div class="item-actions">
+            <button type="button" class="item-open">Modifier</button>
+            <button type="button" class="item-delete">Retirer</button>
+          </div>
+        </div>
+
+        {{/each}}
+      </section>
+    </div>
+
+    <div class="tab" data-group="primary" data-tab="notes">
+      <section class="block">
+        <h2>📝 Notes du personnage</h2>
+        <textarea name="system.statuts">{{system.statuts}}</textarea>
+      </section>
+    </div>
+
+  </section>
+
+  {{/if}}
+
+</form>
