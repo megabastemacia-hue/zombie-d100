@@ -2,7 +2,7 @@
   "id": "zombie-d100",
   "title": "Zombie Apocalypse D100",
   "description": "Système D100 survival horror zombie sans points de vie.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": {
     "minimum": "12",
     "verified": "12",
@@ -22,7 +22,7 @@
   "template": "template.json",
   "url": "https://github.com/megabastemacia-hue/zombie-d100",
   "manifest": "https://raw.githubusercontent.com/megabastemacia-hue/zombie-d100/main/system.json",
-  "download": "https://github.com/megabastemacia-hue/zombie-d100/releases/download/v1.0.4/zombie-d100.zip",
+  "download": "https://github.com/megabastemacia-hue/zombie-d100/releases/download/v1.0.5/zombie-d100.zip",
   "gridDistance": 1,
   "gridUnits": "m",
   "documentTypes": {
