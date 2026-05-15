@@ -2,7 +2,6 @@
 
   <header class="sheet-header">
     <div class="sheet-title">
-
       <div class="name-row">
         <span class="biohazard">☣</span>
 
@@ -18,13 +17,10 @@
       </div>
 
       <p>Base de données de survie</p>
-
     </div>
   </header>
 
   <section class="sheet-body">
-
-    <!-- DESCRIPTION -->
 
     <section class="block">
       <h2>📝 Description</h2>
@@ -35,19 +31,15 @@
       >{{system.description}}</textarea>
     </section>
 
-    <!-- ARMES -->
-
     {{#if isWeapon}}
 
     <section class="block">
-
       <h2>🔫 Paramètres de l'arme</h2>
 
       <div class="grid-2">
 
         <div class="field">
           <label>Type d'arme</label>
-
           <select name="system.typeArme">
             <option value="tir" {{#if (eq system.typeArme "tir")}}selected{{/if}}>Arme à feu</option>
             <option value="melee" {{#if (eq system.typeArme "melee")}}selected{{/if}}>Corps à corps</option>
@@ -74,22 +66,17 @@
 
         <div class="field">
           <label>Modes autorisés</label>
-
           <input
             type="text"
             name="system.modesAutorises"
             value="{{system.modesAutorises}}"
             placeholder="semi,burst,auto"
           />
-
-          <p class="help-text">
-            Exemple : semi,burst,auto
-          </p>
+          <p class="help-text">Exemple : semi,burst,auto</p>
         </div>
 
         <div class="field">
           <label>Mode actuel</label>
-
           <select name="system.modeTirActuel">
             <option value="semi" {{#if (eq system.modeTirActuel "semi")}}selected{{/if}}>Semi-auto</option>
             <option value="burst" {{#if (eq system.modeTirActuel "burst")}}selected{{/if}}>Rafale</option>
@@ -120,33 +107,24 @@
 
     {{/if}}
 
-    <!-- MUNITIONS -->
-
     {{#if isAmmo}}
 
     <section class="block">
-
       <h2>📦 Munitions</h2>
 
       <div class="grid-2">
-
         <div class="field">
           <label>Quantité</label>
           <input type="number" name="system.quantite" value="{{system.quantite}}" />
         </div>
-
       </div>
-
     </section>
 
     {{/if}}
 
-    <!-- OBJETS UTILISABLES -->
-
     {{#if isUsable}}
 
     <section class="block">
-
       <h2>🧪 Effets de l'objet</h2>
 
       <div class="grid-2">
@@ -175,64 +153,86 @@
 
       <div class="field">
         <label>Effet narratif</label>
-
         <textarea
           name="system.noteUse"
           placeholder="Effet RP, douleur, fatigue, hallucination..."
         >{{system.noteUse}}</textarea>
       </div>
-
     </section>
 
     {{/if}}
 
-    <!-- STATUTS -->
-
-    {{#if isStatus}}
+    {{#if isEquipment}}
 
     <section class="block">
-
-      <h2>☣ Modificateurs de statut</h2>
+      <h2>🎒 Équipement</h2>
 
       <div class="grid-2">
 
         <div class="field">
-          <label>FOR</label>
-          <input type="number" name="system.modFor" value="{{system.modFor}}" />
+          <label>Slot</label>
+          <select name="system.slot">
+            <option value="head" {{#if (eq system.slot "head")}}selected{{/if}}>Tête</option>
+            <option value="body" {{#if (eq system.slot "body")}}selected{{/if}}>Corps</option>
+            <option value="bag" {{#if (eq system.slot "bag")}}selected{{/if}}>Sac</option>
+            <option value="primary" {{#if (eq system.slot "primary")}}selected{{/if}}>Main principale</option>
+            <option value="secondary" {{#if (eq system.slot "secondary")}}selected{{/if}}>Main secondaire</option>
+            <option value="hands" {{#if (eq system.slot "hands")}}selected{{/if}}>Gants</option>
+            <option value="feet" {{#if (eq system.slot "feet")}}selected{{/if}}>Bottes</option>
+            <option value="accessory" {{#if (eq system.slot "accessory")}}selected{{/if}}>Accessoire</option>
+          </select>
         </div>
 
         <div class="field">
-          <label>AGI</label>
-          <input type="number" name="system.modAgi" value="{{system.modAgi}}" />
-        </div>
-
-        <div class="field">
-          <label>INT</label>
-          <input type="number" name="system.modInt" value="{{system.modInt}}" />
-        </div>
-
-        <div class="field">
-          <label>PER</label>
-          <input type="number" name="system.modPer" value="{{system.modPer}}" />
-        </div>
-
-        <div class="field">
-          <label>STR</label>
-          <input type="number" name="system.modStr" value="{{system.modStr}}" />
-        </div>
-
-        <div class="field">
-          <label>COMBAT</label>
-          <input type="number" name="system.modCombat" value="{{system.modCombat}}" />
-        </div>
-
-        <div class="field">
-          <label>TIR</label>
-          <input type="number" name="system.modTir" value="{{system.modTir}}" />
+          <label>Équipé ?</label>
+          <input type="checkbox" name="system.equipped" {{checked system.equipped}} />
         </div>
 
       </div>
+    </section>
 
+    <section class="block">
+      <h2>📊 Bonus / Malus équipement</h2>
+
+      <div class="grid-2">
+
+        <div class="field"><label>FOR</label><input type="number" name="system.modFor" value="{{system.modFor}}" /></div>
+        <div class="field"><label>AGI</label><input type="number" name="system.modAgi" value="{{system.modAgi}}" /></div>
+        <div class="field"><label>INT</label><input type="number" name="system.modInt" value="{{system.modInt}}" /></div>
+        <div class="field"><label>PER</label><input type="number" name="system.modPer" value="{{system.modPer}}" /></div>
+        <div class="field"><label>STR</label><input type="number" name="system.modStr" value="{{system.modStr}}" /></div>
+        <div class="field"><label>COMBAT</label><input type="number" name="system.modCombat" value="{{system.modCombat}}" /></div>
+        <div class="field"><label>TIR</label><input type="number" name="system.modTir" value="{{system.modTir}}" /></div>
+
+      </div>
+
+      <div class="field">
+        <label>Effet narratif</label>
+        <textarea
+          name="system.noteUse"
+          placeholder="Exemple : protège contre morsures, ralentit les mouvements..."
+        >{{system.noteUse}}</textarea>
+      </div>
+    </section>
+
+    {{/if}}
+
+    {{#if isStatus}}
+
+    <section class="block">
+      <h2>☣ Modificateurs de statut</h2>
+
+      <div class="grid-2">
+
+        <div class="field"><label>FOR</label><input type="number" name="system.modFor" value="{{system.modFor}}" /></div>
+        <div class="field"><label>AGI</label><input type="number" name="system.modAgi" value="{{system.modAgi}}" /></div>
+        <div class="field"><label>INT</label><input type="number" name="system.modInt" value="{{system.modInt}}" /></div>
+        <div class="field"><label>PER</label><input type="number" name="system.modPer" value="{{system.modPer}}" /></div>
+        <div class="field"><label>STR</label><input type="number" name="system.modStr" value="{{system.modStr}}" /></div>
+        <div class="field"><label>COMBAT</label><input type="number" name="system.modCombat" value="{{system.modCombat}}" /></div>
+        <div class="field"><label>TIR</label><input type="number" name="system.modTir" value="{{system.modTir}}" /></div>
+
+      </div>
     </section>
 
     {{/if}}
