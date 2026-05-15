@@ -39,8 +39,8 @@
   "secondaryTokenAttribute": "",
 
   "grid": {
-    "distance": 1,
-    "units": "m"
+"gridDistance": 1,
+"gridUnits": "m"
   },
 
 "url": "https://github.com/megabastemacia-hue/zombie-d100",
