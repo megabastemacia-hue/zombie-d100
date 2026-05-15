@@ -43,11 +43,11 @@
     "units": "m"
   },
 
-  "url": "https://github.com/megabaste/zombie-d100",
+"url": "https://github.com/megabastemacia-hue/zombie-d100",
 
-  "manifest": "https://raw.githubusercontent.com/megabaste/zombie-d100/main/system.json",
+"manifest": "https://raw.githubusercontent.com/megabastemacia-hue/zombie-d100/main/system.json",
 
-  "download": "https://github.com/megabaste/zombie-d100/releases/latest/download/zombie-d100.zip",
+"download": "https://github.com/megabastemacia-hue/zombie-d100/releases/latest/download/zombie-d100.zip",
 
   "socket": false,
 
