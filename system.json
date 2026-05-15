@@ -2,17 +2,17 @@
   "id": "zombie-d100",
   "title": "Zombie Apocalypse D100",
   "description": "Système D100 survival horror zombie sans points de vie.",
+  "version": "1.0.1",
+  "compatibility": {
+    "minimum": 11,
+    "verified": 11,
+    "maximum": 11
+  },
   "authors": [
     {
       "name": "megabaste"
     }
   ],
-  "version": "1.0.0",
-  "compatibility": {
-    "minimum": 11,
-    "verified": 12,
-    "maximum": 12
-  },
   "esmodules": [
     "zombie-d100.js"
   ],
@@ -20,9 +20,9 @@
     "styles/zombie-d100.css"
   ],
   "template": "template.json",
-  "url": "https://github.com/megabastemacia-hue/zombie-d100",
-  "manifest": "https://raw.githubusercontent.com/megabastemacia-hue/zombie-d100/main/system.json",
-  "download": "https://github.com/megabastemacia-hue/zombie-d100/releases/latest/download/zombie-d100.zip",
+  "url": "https://github.com/TON-PSEUDO/zombie-d100",
+  "manifest": "https://raw.githubusercontent.com/TON-PSEUDO/zombie-d100/main/system.json",
+  "download": "https://github.com/TON-PSEUDO/zombie-d100/releases/latest/download/zombie-d100.zip",
   "documentTypes": {
     "Actor": {
       "survivant": {},
