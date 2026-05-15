@@ -3,31 +3,63 @@
   "title": "Zombie Apocalypse D100",
   "description": "Système D100 survival horror zombie sans points de vie.",
   "version": "1.0.1",
+
   "compatibility": {
-    "minimum": 11,
-    "verified": 11,
-    "maximum": 11
+    "minimum": "13",
+    "verified": "13",
+    "maximum": "13"
   },
+
   "authors": [
     {
       "name": "megabaste"
     }
   ],
+
   "esmodules": [
     "zombie-d100.js"
   ],
+
   "styles": [
     "styles/zombie-d100.css"
   ],
-  "template": "template.json",
-"url": "https://github.com/megabaste/zombie-d100",
-"manifest": "https://raw.githubusercontent.com/megabaste/zombie-d100/main/system.json",
-"download": "https://github.com/megabaste/zombie-d100/releases/latest/download/zombie-d100.zip"
+
+  "languages": [
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ],
+
+  "packs": [],
+
+  "primaryTokenAttribute": "",
+
+  "secondaryTokenAttribute": "",
+
+  "grid": {
+    "distance": 1,
+    "units": "m"
+  },
+
+  "url": "https://github.com/megabaste/zombie-d100",
+
+  "manifest": "https://raw.githubusercontent.com/megabaste/zombie-d100/main/system.json",
+
+  "download": "https://github.com/megabaste/zombie-d100/releases/latest/download/zombie-d100.zip",
+
+  "socket": false,
+
+  "initiative": "system.stats.agi",
+
   "documentTypes": {
+
     "Actor": {
       "survivant": {},
       "zombie": {}
     },
+
     "Item": {
       "arme": {},
       "munition": {},
