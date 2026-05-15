@@ -1,154 +1,155 @@
-{
-  "Actor": {
-    "types": [
-      "survivant",
-      "zombie"
-    ],
+<form class="{{cssClass}} zombie-item-sheet" autocomplete="off">
 
-    "templates": {
+  <header class="sheet-header">
+    <div class="sheet-title">
+      <div class="name-row">
+        <span class="biohazard">☣</span>
 
-      "base": {
+        <input
+          class="actor-name-input"
+          type="text"
+          name="name"
+          value="{{item.name}}"
+          placeholder="Nom de l'objet"
+        />
 
-        "stats": {
+        <span class="biohazard">☣</span>
+      </div>
 
-          "for": 10,
-          "agi": 10,
-          "int": 10,
-          "per": 10,
-          "str": 10,
-          "combat": 10,
-          "tir": 10
-        },
+      <p>Fiche d’objet — Matériel de survie</p>
+    </div>
+  </header>
 
-        "stress": {
+  <section class="block">
+    <h2>Informations</h2>
 
-          "value": 0,
+    <div class="grid-2">
+      <div class="field">
+        <label>Quantité</label>
+        <input type="number" name="system.quantite" value="{{system.quantite}}" />
+      </div>
+    </div>
 
-          "mentalState": "stable"
-        },
+    <div class="field description-field">
+      <label>Description</label>
+      <textarea name="system.description">{{system.description}}</textarea>
+    </div>
+  </section>
 
-        "survie": {
+  {{#if isWeapon}}
 
-          "faim": 0,
-          "soif": 0
-        },
+  <section class="block">
+    <h2>Configuration arme</h2>
 
-        "infection": {
+    <div class="grid-2">
 
-          "infected": false,
-          "stage": 0,
-          "timer": 0
-        },
+      <div class="field">
+        <label>Type arme</label>
+        <select name="system.typeArme">
+          <option value="tir">Distance</option>
+          <option value="melee">Corps à corps</option>
+        </select>
+      </div>
 
-        "zombie": {
+      <div class="field">
+        <label>Bonus</label>
+        <input type="number" name="system.bonus" value="{{system.bonus}}" />
+      </div>
 
-          "type": "rodeur",
+      <div class="field">
+        <label>Modes autorisés</label>
+        <input
+          type="text"
+          name="system.modesAutorises"
+          value="{{system.modesAutorises}}"
+          placeholder="semi,burst,auto"
+        />
+        <p class="help-text">
+          Exemples : melee / semi / semi,burst / semi,burst,auto
+        </p>
+      </div>
 
-          "aggressivite": 1,
+      <div class="field">
+        <label>Mode actuel</label>
+        <select name="system.modeTirActuel">
+          <option value="melee">Corps à corps</option>
+          <option value="semi">Semi-auto</option>
+          <option value="burst">Rafale</option>
+          <option value="auto">Automatique</option>
+        </select>
+      </div>
 
-          "detection": 30,
+      <div class="field">
+        <label>Munitions dans l’arme</label>
+        <input type="number" name="system.munitions" value="{{system.munitions}}" />
+      </div>
 
-          "infectionChance": 25,
+      <div class="field">
+        <label>Taille chargeur</label>
+        <input type="number" name="system.chargeur" value="{{system.chargeur}}" />
+      </div>
 
-          "target": "",
+      <div class="field">
+        <label>Type munition</label>
+        <input type="text" name="system.typeMunition" value="{{system.typeMunition}}" />
+      </div>
 
-          "etat": "errance",
+      <div class="field">
+        <label>Portée</label>
+        <input type="text" name="system.portee" value="{{system.portee}}" />
+      </div>
 
-          "speed": 1,
+    </div>
+  </section>
 
-          "hordeRadius": 10
-        },
+  {{/if}}
 
-        "blessures": "",
+  {{#if isUsable}}
 
-        "statuts": ""
-      }
-    },
+  <section class="block">
+    <h2>Effets d’utilisation</h2>
 
-    "survivant": {
-      "templates": ["base"]
-    },
+    <div class="grid-2">
+      <div class="field">
+        <label>Stress</label>
+        <input type="number" name="system.stressMod" value="{{system.stressMod}}" />
+      </div>
 
-    "zombie": {
-      "templates": ["base"]
-    }
-  },
+      <div class="field">
+        <label>Faim</label>
+        <input type="number" name="system.faimMod" value="{{system.faimMod}}" />
+      </div>
 
-  "Item": {
+      <div class="field">
+        <label>Soif</label>
+        <input type="number" name="system.soifMod" value="{{system.soifMod}}" />
+      </div>
+    </div>
 
-    "types": [
-      "arme",
-      "munition",
-      "nourriture",
-      "soin",
-      "objet",
-      "statut"
-    ],
+    <div class="field description-field">
+      <label>Texte d’utilisation</label>
+      <textarea name="system.noteUse">{{system.noteUse}}</textarea>
+    </div>
+  </section>
 
-    "templates": {
+  {{/if}}
 
-      "base": {
+  {{#if isStatus}}
 
-        "quantite": 1,
+  <section class="block">
+    <h2>Modificateurs de statut</h2>
 
-        "description": "",
+    <div class="grid-2">
+      <div class="field"><label>FOR</label><input type="number" name="system.modFor" value="{{system.modFor}}" /></div>
+      <div class="field"><label>AGI</label><input type="number" name="system.modAgi" value="{{system.modAgi}}" /></div>
+      <div class="field"><label>INT</label><input type="number" name="system.modInt" value="{{system.modInt}}" /></div>
+      <div class="field"><label>PER</label><input type="number" name="system.modPer" value="{{system.modPer}}" /></div>
+      <div class="field"><label>STR</label><input type="number" name="system.modStr" value="{{system.modStr}}" /></div>
+      <div class="field"><label>COMBAT</label><input type="number" name="system.modCombat" value="{{system.modCombat}}" /></div>
+      <div class="field"><label>TIR</label><input type="number" name="system.modTir" value="{{system.modTir}}" /></div>
+    </div>
+  </section>
 
-        "noteUse": "",
+  {{/if}}
 
-        "typeArme": "tir",
-
-        "modeTir": "semi",
-
-        "bonus": 0,
-
-        "munitions": 0,
-
-        "chargeur": 0,
-
-        "typeMunition": "",
-
-        "portee": "",
-
-        "noise": 0,
-
-        "stressMod": 0,
-
-        "faimMod": 0,
-
-        "soifMod": 0,
-
-        "modFor": 0,
-        "modAgi": 0,
-        "modInt": 0,
-        "modPer": 0,
-        "modStr": 0,
-        "modCombat": 0,
-        "modTir": 0
-      }
-    },
-
-    "arme": {
-      "templates": ["base"]
-    },
-
-    "munition": {
-      "templates": ["base"]
-    },
-
-    "nourriture": {
-      "templates": ["base"]
-    },
-
-    "soin": {
-      "templates": ["base"]
-    },
-
-    "objet": {
-      "templates": ["base"]
-    },
-
-    "statut": {
-      "templates": ["base"]
-    }
-  }
-}
+</form>
