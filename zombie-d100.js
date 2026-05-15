@@ -580,6 +580,51 @@ context.system = system;
     });
 
     html.find(".stress-minus").click(async ev => {
+      html.find(".mental-check").click(async ev => {
+  ev.preventDefault();
+
+  const stress = Number(this.actor.system.stress?.value ?? 0);
+
+  let state = "stable";
+  let message = "Le survivant garde son calme.";
+
+  if (stress >= 25) {
+    state = "anxieux";
+    message = "Le survivant devient nerveux et surveille chaque bruit.";
+  }
+
+  if (stress >= 50) {
+    state = "panique";
+    message = "Le survivant tremble, respire mal et perd sa concentration.";
+  }
+
+  if (stress >= 75) {
+    state = "hallucinations";
+    message = "Le survivant commence à voir ou entendre des choses inexistantes.";
+  }
+
+  if (stress >= 90) {
+    state = "crise mentale";
+    message = "Le survivant perd presque totalement le contrôle.";
+  }
+
+  await this.actor.update({
+    "system.stress.mentalState": state
+  });
+
+  ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+    content: `
+      <div class="zombie-chat-card">
+        <h2>🧠 ÉTAT MENTAL</h2>
+        <p><b>${this.actor.name}</b></p>
+        <p><b>Stress :</b> ${stress}/100</p>
+        <p><b>État :</b> ${state}</p>
+        <p>${message}</p>
+      </div>
+    `
+  });
+});
 
       ev.preventDefault();
 
