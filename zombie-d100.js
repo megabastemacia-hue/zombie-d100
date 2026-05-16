@@ -132,14 +132,14 @@ class ZombieD100ActorSheet extends ActorSheet {
     );
 
     context.equippedSlots = {
-      head: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "head"),
-      body: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "body"),
-      bag: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "bag"),
-      primary: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "primary"),
-      secondary: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "secondary"),
-      hands: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "hands"),
-      feet: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "feet"),
-      accessory: allItems.find(i => i.isEquipment && i.system.equipped && i.system.slot === "accessory")
+      head: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "head"),
+      body: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "body"),
+      bag: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "bag"),
+      primary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "primary"),
+      secondary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "secondary"),
+      hands: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "hands"),
+      feet: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "feet"),
+      accessory: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "accessory")
     };
 
     return context;
@@ -204,25 +204,28 @@ class ZombieD100ActorSheet extends ActorSheet {
     let total = 0;
 
     for (let item of this.actor.items) {
-      if (item.type === "statut") {
-        if (stat === "for") total += Number(item.system.modFor ?? 0);
-        if (stat === "agi") total += Number(item.system.modAgi ?? 0);
-        if (stat === "int") total += Number(item.system.modInt ?? 0);
-        if (stat === "per") total += Number(item.system.modPer ?? 0);
-        if (stat === "str") total += Number(item.system.modStr ?? 0);
-        if (stat === "combat") total += Number(item.system.modCombat ?? 0);
-        if (stat === "tir") total += Number(item.system.modTir ?? 0);
-      }
+      if (item.type !== "statut") continue;
 
-      if (item.type === "equipement" && item.system.equipped === true) {
-        if (stat === "for") total += Number(item.system.modFor ?? 0);
-        if (stat === "agi") total += Number(item.system.modAgi ?? 0);
-        if (stat === "int") total += Number(item.system.modInt ?? 0);
-        if (stat === "per") total += Number(item.system.modPer ?? 0);
-        if (stat === "str") total += Number(item.system.modStr ?? 0);
-        if (stat === "combat") total += Number(item.system.modCombat ?? 0);
-        if (stat === "tir") total += Number(item.system.modTir ?? 0);
-      }
+      if (stat === "for") total += Number(item.system.modFor ?? 0);
+      if (stat === "agi") total += Number(item.system.modAgi ?? 0);
+      if (stat === "int") total += Number(item.system.modInt ?? 0);
+      if (stat === "per") total += Number(item.system.modPer ?? 0);
+      if (stat === "str") total += Number(item.system.modStr ?? 0);
+      if (stat === "combat") total += Number(item.system.modCombat ?? 0);
+      if (stat === "tir") total += Number(item.system.modTir ?? 0);
+    }
+
+    for (let item of this.actor.items) {
+      if (item.type !== "equipement") continue;
+      if (item.system.equipped !== true) continue;
+
+      if (stat === "for") total += Number(item.system.modFor ?? 0);
+      if (stat === "agi") total += Number(item.system.modAgi ?? 0);
+      if (stat === "int") total += Number(item.system.modInt ?? 0);
+      if (stat === "per") total += Number(item.system.modPer ?? 0);
+      if (stat === "str") total += Number(item.system.modStr ?? 0);
+      if (stat === "combat") total += Number(item.system.modCombat ?? 0);
+      if (stat === "tir") total += Number(item.system.modTir ?? 0);
     }
 
     return total;
@@ -247,11 +250,9 @@ class ZombieD100ActorSheet extends ActorSheet {
     if (result <= 5) {
       outcome = "RÉUSSITE CRITIQUE";
       color = "#00ff66";
-      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#ff0000";
-      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result <= seuil) {
       outcome = "RÉUSSITE";
       color = "#33cc33";
@@ -279,6 +280,70 @@ class ZombieD100ActorSheet extends ActorSheet {
         </div>
       `
     });
+  }
+
+  async _equipWeapon(item, slot) {
+    if (!item || item.type !== "arme") return;
+
+    const currentlyEquipped = this.actor.items.filter(i =>
+      i.type === "arme" &&
+      i.system.slot === slot &&
+      i.system.equipped === true &&
+      i.id !== item.id
+    );
+
+    for (const other of currentlyEquipped) {
+      await other.update({
+        "system.equipped": false,
+        "system.slot": ""
+      });
+    }
+
+    await item.update({
+      "system.equipped": true,
+      "system.slot": slot
+    });
+
+    ui.notifications.info(`${item.name} équipé en ${slot === "primary" ? "main principale" : "main secondaire"}.`);
+  }
+
+  async _equipItem(item) {
+    if (!item || item.type !== "equipement") return;
+
+    const slot = item.system.slot || "body";
+
+    const currentlyEquipped = this.actor.items.filter(i =>
+      i.type === "equipement" &&
+      i.system.slot === slot &&
+      i.system.equipped === true &&
+      i.id !== item.id
+    );
+
+    for (const other of currentlyEquipped) {
+      await other.update({ "system.equipped": false });
+    }
+
+    await item.update({ "system.equipped": true });
+
+    ui.notifications.info(`${item.name} équipé dans le slot ${slot}.`);
+  }
+
+  async _unequipItem(item) {
+    if (!item) return;
+
+    if (item.type === "arme") {
+      await item.update({
+        "system.equipped": false,
+        "system.slot": ""
+      });
+      ui.notifications.info(`${item.name} retiré.`);
+      return;
+    }
+
+    if (item.type === "equipement") {
+      await item.update({ "system.equipped": false });
+      ui.notifications.info(`${item.name} retiré.`);
+    }
   }
 
   async _findStatusInCompendium(name) {
@@ -449,12 +514,10 @@ class ZombieD100ActorSheet extends ActorSheet {
       outcome = "MORSURE CRITIQUE";
       color = "#ff0000";
       consequence = "Morsure grave. Le MJ peut imposer infection, blessure critique ou panique.";
-      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#999999";
       consequence = "Le zombie tombe, se bloque, ou laisse une ouverture.";
-      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result <= seuil) {
       outcome = "ATTAQUE RÉUSSIE";
       color = "#ff3333";
@@ -478,37 +541,38 @@ class ZombieD100ActorSheet extends ActorSheet {
     });
   }
 
-  async _equipItem(item) {
-    if (!item || item.type !== "equipement") return;
-
-    const slot = item.system.slot || "body";
-
-    const currentlyEquipped = this.actor.items.filter(i =>
-      i.type === "equipement" &&
-      i.system.slot === slot &&
-      i.system.equipped === true &&
-      i.id !== item.id
-    );
-
-    for (const other of currentlyEquipped) {
-      await other.update({ "system.equipped": false });
-    }
-
-    await item.update({ "system.equipped": true });
-
-    ui.notifications.info(`${item.name} équipé dans le slot ${slot}.`);
-  }
-
-  async _unequipItem(item) {
-    if (!item || item.type !== "equipement") return;
-
-    await item.update({ "system.equipped": false });
-
-    ui.notifications.info(`${item.name} retiré.`);
-  }
-
   activateListeners(html) {
     super.activateListeners(html);
+
+    html.find(".equip-weapon").click(async ev => {
+      ev.preventDefault();
+
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
+
+      const item = this.actor.items.get(row.dataset.itemId);
+      if (!item || item.type !== "arme") return;
+
+      new Dialog({
+        title: "Équiper l'arme",
+        content: `<p>Où veux-tu équiper <b>${item.name}</b> ?</p>`,
+        buttons: {
+          primary: {
+            label: "Main principale",
+            callback: async () => {
+              await this._equipWeapon(item, "primary");
+            }
+          },
+          secondary: {
+            label: "Main secondaire",
+            callback: async () => {
+              await this._equipWeapon(item, "secondary");
+            }
+          }
+        },
+        default: "primary"
+      }).render(true);
+    });
 
     html.find(".fire-mode").click(async ev => {
       ev.preventDefault();
