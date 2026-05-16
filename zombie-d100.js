@@ -1,3 +1,25 @@
+const SOUND_CRIT_SUCCESS = "https://assets.forge-vtt.com/629920bcbd59cfed65256382/moodmode-weather-news-logo-154226.mp3";
+const SOUND_CRIT_FAIL = "https://assets.forge-vtt.com/629920bcbd59cfed65256382/Cod%20zombies%20%20evil%20laugh.mp3";
+
+const VOLUME_CRIT_SUCCESS = 0.1;
+const VOLUME_CRIT_FAIL = 0.3;
+
+async function playSoundSafe(path, volume = 0.1) {
+  try {
+    await AudioHelper.play(
+      {
+        src: path,
+        volume,
+        autoplay: true,
+        loop: false
+      },
+      true
+    );
+  } catch (err) {
+    console.error("Erreur son critique :", err);
+  }
+}
+
 Hooks.once("init", async function () {
   console.log("Zombie Apocalypse D100 | Initialisation");
 
@@ -39,11 +61,9 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   getData() {
     const context = super.getData();
-
     const system = foundry.utils.deepClone(this.actor.system);
 
     const statusItemsRaw = this.actor.items.filter(i => i.type === "statut");
-
     const equipmentItemsRaw = this.actor.items.filter(i =>
       i.type === "equipement" &&
       i.system.equipped === true
@@ -105,6 +125,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
     context.statusItems = allItems.filter(i => i.type === "statut");
     context.equipmentItems = allItems.filter(i => i.type === "equipement");
+
     context.inventoryItems = allItems.filter(i =>
       i.type !== "statut" &&
       i.type !== "equipement"
@@ -183,28 +204,25 @@ class ZombieD100ActorSheet extends ActorSheet {
     let total = 0;
 
     for (let item of this.actor.items) {
-      if (item.type !== "statut") continue;
+      if (item.type === "statut") {
+        if (stat === "for") total += Number(item.system.modFor ?? 0);
+        if (stat === "agi") total += Number(item.system.modAgi ?? 0);
+        if (stat === "int") total += Number(item.system.modInt ?? 0);
+        if (stat === "per") total += Number(item.system.modPer ?? 0);
+        if (stat === "str") total += Number(item.system.modStr ?? 0);
+        if (stat === "combat") total += Number(item.system.modCombat ?? 0);
+        if (stat === "tir") total += Number(item.system.modTir ?? 0);
+      }
 
-      if (stat === "for") total += Number(item.system.modFor ?? 0);
-      if (stat === "agi") total += Number(item.system.modAgi ?? 0);
-      if (stat === "int") total += Number(item.system.modInt ?? 0);
-      if (stat === "per") total += Number(item.system.modPer ?? 0);
-      if (stat === "str") total += Number(item.system.modStr ?? 0);
-      if (stat === "combat") total += Number(item.system.modCombat ?? 0);
-      if (stat === "tir") total += Number(item.system.modTir ?? 0);
-    }
-
-    for (let item of this.actor.items) {
-      if (item.type !== "equipement") continue;
-      if (item.system.equipped !== true) continue;
-
-      if (stat === "for") total += Number(item.system.modFor ?? 0);
-      if (stat === "agi") total += Number(item.system.modAgi ?? 0);
-      if (stat === "int") total += Number(item.system.modInt ?? 0);
-      if (stat === "per") total += Number(item.system.modPer ?? 0);
-      if (stat === "str") total += Number(item.system.modStr ?? 0);
-      if (stat === "combat") total += Number(item.system.modCombat ?? 0);
-      if (stat === "tir") total += Number(item.system.modTir ?? 0);
+      if (item.type === "equipement" && item.system.equipped === true) {
+        if (stat === "for") total += Number(item.system.modFor ?? 0);
+        if (stat === "agi") total += Number(item.system.modAgi ?? 0);
+        if (stat === "int") total += Number(item.system.modInt ?? 0);
+        if (stat === "per") total += Number(item.system.modPer ?? 0);
+        if (stat === "str") total += Number(item.system.modStr ?? 0);
+        if (stat === "combat") total += Number(item.system.modCombat ?? 0);
+        if (stat === "tir") total += Number(item.system.modTir ?? 0);
+      }
     }
 
     return total;
@@ -229,9 +247,11 @@ class ZombieD100ActorSheet extends ActorSheet {
     if (result <= 5) {
       outcome = "RÉUSSITE CRITIQUE";
       color = "#00ff66";
+      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#ff0000";
+      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result <= seuil) {
       outcome = "RÉUSSITE";
       color = "#33cc33";
@@ -429,10 +449,12 @@ class ZombieD100ActorSheet extends ActorSheet {
       outcome = "MORSURE CRITIQUE";
       color = "#ff0000";
       consequence = "Morsure grave. Le MJ peut imposer infection, blessure critique ou panique.";
+      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#999999";
       consequence = "Le zombie tombe, se bloque, ou laisse une ouverture.";
+      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result <= seuil) {
       outcome = "ATTAQUE RÉUSSIE";
       color = "#ff3333";
