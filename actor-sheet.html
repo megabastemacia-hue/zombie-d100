@@ -42,8 +42,6 @@
 
   <section class="sheet-body">
 
-    <!-- PROFIL -->
-
     <div class="tab active" data-group="primary" data-tab="profil">
 
       <section class="block">
@@ -170,8 +168,6 @@
 
     </div>
 
-    <!-- STATS -->
-
     <div class="tab" data-group="primary" data-tab="stats">
       <section class="block">
         <h2>📊 Caractéristiques</h2>
@@ -187,8 +183,6 @@
         </div>
       </section>
     </div>
-
-    <!-- SURVIE -->
 
     <div class="tab" data-group="primary" data-tab="survie">
       <section class="block">
@@ -239,8 +233,6 @@
       </section>
     </div>
 
-    <!-- INVENTAIRE -->
-
     <div class="tab" data-group="primary" data-tab="inventaire">
       <section class="block">
         <h2>🔫 Armes</h2>
@@ -253,7 +245,10 @@
             <b>🔫 {{item.name}}</b>
 
             {{#if (eq item.system.typeArme "melee")}}
-            <span>Corps à corps — Bonus : {{item.system.bonus}}</span>
+            <span>
+              Corps à corps — Bonus : {{item.system.bonus}}
+              {{#if item.system.equipped}} — Équipée{{/if}}
+            </span>
             {{else}}
             <span>
               Mode actuel : {{item.system.modeTirActuel}}
@@ -263,6 +258,7 @@
               {{item.system.munitions}} / {{item.system.chargeur}}
               —
               {{item.system.typeMunition}}
+              {{#if item.system.equipped}} — Équipée{{/if}}
             </span>
             {{/if}}
 
@@ -280,6 +276,7 @@
             </div>
             {{/unless}}
 
+            <button type="button" class="equip-weapon">Équiper</button>
             <button type="button" class="item-attack">Attaque</button>
 
             {{#unless (eq item.system.typeArme "melee")}}
@@ -357,8 +354,6 @@
       </section>
     </div>
 
-    <!-- ÉQUIPEMENT -->
-
     <div class="tab" data-group="primary" data-tab="equipement">
       <section class="block">
         <h2>🎒 Équipements possédés</h2>
@@ -409,8 +404,6 @@
       </section>
     </div>
 
-    <!-- STATUTS -->
-
     <div class="tab" data-group="primary" data-tab="statuts">
       <section class="block">
         <h2>☣ Statuts actifs</h2>
@@ -444,8 +437,6 @@
         {{/each}}
       </section>
     </div>
-
-    <!-- NOTES -->
 
     <div class="tab" data-group="primary" data-tab="notes">
       <section class="block">
