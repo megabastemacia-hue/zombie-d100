@@ -42,6 +42,17 @@ Hooks.once("init", async function () {
   });
 });
 
+function isMeleeWeapon(item) {
+  const typeArme = String(item?.system?.typeArme ?? "").toLowerCase().trim();
+
+  return (
+    typeArme === "melee" ||
+    typeArme === "corps à corps" ||
+    typeArme === "corps a corps" ||
+    typeArme === "cac"
+  );
+}
+
 class ZombieD100ActorSheet extends ActorSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
