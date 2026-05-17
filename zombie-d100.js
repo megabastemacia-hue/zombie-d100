@@ -6,15 +6,7 @@ const VOLUME_CRIT_FAIL = 0.3;
 
 async function playSoundSafe(path, volume = 0.1) {
   try {
-    await AudioHelper.play(
-      {
-        src: path,
-        volume,
-        autoplay: true,
-        loop: false
-      },
-      true
-    );
+    await AudioHelper.play({ src: path, volume, autoplay: true, loop: false }, true);
   } catch (err) {
     console.error("Erreur son critique :", err);
   }
@@ -23,19 +15,15 @@ async function playSoundSafe(path, volume = 0.1) {
 Hooks.once("init", async function () {
   console.log("Zombie Apocalypse D100 | Initialisation");
 
-  Handlebars.registerHelper("eq", function (a, b) {
-    return a === b;
-  });
+  Handlebars.registerHelper("eq", (a, b) => a === b);
 
   Actors.unregisterSheet("core", ActorSheet);
-
   Actors.registerSheet("zombie-d100", ZombieD100ActorSheet, {
     types: ["survivant", "zombie"],
     makeDefault: true
   });
 
   Items.unregisterSheet("core", ItemSheet);
-
   Items.registerSheet("zombie-d100", ZombieD100ItemSheet, {
     types: ["arme", "munition", "nourriture", "soin", "objet", "equipement", "statut"],
     makeDefault: true
@@ -43,15 +31,8 @@ Hooks.once("init", async function () {
 });
 
 function isMeleeWeapon(item) {
-  const typeArme = String(item?.system?.typeArme ?? "")
-    .toLowerCase()
-    .trim();
-
-  return (
-    typeArme === "melee" ||
-    typeArme.includes("corps") ||
-    typeArme.includes("cac")
-  );
+  const typeArme = String(item?.system?.typeArme ?? "").toLowerCase().trim();
+  return typeArme === "melee" || typeArme.includes("corps") || typeArme.includes("cac");
 }
 
 class ZombieD100ActorSheet extends ActorSheet {
@@ -61,13 +42,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       template: "systems/zombie-d100/templates/actor-sheet.html",
       width: 900,
       height: 950,
-      tabs: [
-        {
-          navSelector: ".sheet-tabs",
-          contentSelector: ".sheet-body",
-          initial: "profil"
-        }
-      ]
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "profil" }]
     });
   }
 
@@ -76,30 +51,17 @@ class ZombieD100ActorSheet extends ActorSheet {
     const system = foundry.utils.deepClone(this.actor.system);
 
     const statusItemsRaw = this.actor.items.filter(i => i.type === "statut");
-    const equipmentItemsRaw = this.actor.items.filter(i =>
-      i.type === "equipement" &&
-      i.system.equipped === true
-    );
+    const equipmentItemsRaw = this.actor.items.filter(i => i.type === "equipement" && i.system.equipped === true);
 
     if (system.stats) {
-      for (const status of statusItemsRaw) {
-        system.stats.for += Number(status.system.modFor || 0);
-        system.stats.agi += Number(status.system.modAgi || 0);
-        system.stats.int += Number(status.system.modInt || 0);
-        system.stats.per += Number(status.system.modPer || 0);
-        system.stats.str += Number(status.system.modStr || 0);
-        system.stats.combat += Number(status.system.modCombat || 0);
-        system.stats.tir += Number(status.system.modTir || 0);
-      }
-
-      for (const equip of equipmentItemsRaw) {
-        system.stats.for += Number(equip.system.modFor || 0);
-        system.stats.agi += Number(equip.system.modAgi || 0);
-        system.stats.int += Number(equip.system.modInt || 0);
-        system.stats.per += Number(equip.system.modPer || 0);
-        system.stats.str += Number(equip.system.modStr || 0);
-        system.stats.combat += Number(equip.system.modCombat || 0);
-        system.stats.tir += Number(equip.system.modTir || 0);
+      for (const item of [...statusItemsRaw, ...equipmentItemsRaw]) {
+        system.stats.for += Number(item.system.modFor || 0);
+        system.stats.agi += Number(item.system.modAgi || 0);
+        system.stats.int += Number(item.system.modInt || 0);
+        system.stats.per += Number(item.system.modPer || 0);
+        system.stats.str += Number(item.system.modStr || 0);
+        system.stats.combat += Number(item.system.modCombat || 0);
+        system.stats.tir += Number(item.system.modTir || 0);
       }
     }
 
@@ -107,28 +69,20 @@ class ZombieD100ActorSheet extends ActorSheet {
     context.isZombie = this.actor.type === "zombie";
 
     const allItems = this.actor.items.map(item => {
-      const modes = String(item.system.modesAutorises ?? "")
-        .split(",")
-        .map(m => m.trim());
+      const modes = String(item.system.modesAutorises ?? "").split(",").map(m => m.trim());
 
       return {
         id: item.id,
         name: item.name,
         type: item.type,
         system: item.system,
-
         isWeapon: item.type === "arme",
         isAmmo: item.type === "munition",
-        isUsable:
-          item.type === "nourriture" ||
-          item.type === "soin" ||
-          item.type === "objet",
+        isUsable: ["nourriture", "soin", "objet"].includes(item.type),
         isEquipment: item.type === "equipement",
         isEquipped: item.system.equipped === true,
         isStatus: item.type === "statut",
-
         slot: item.system.slot || "",
-
         canSemi: modes.includes("semi"),
         canBurst: modes.includes("burst"),
         canAuto: modes.includes("auto")
@@ -137,11 +91,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
     context.statusItems = allItems.filter(i => i.type === "statut");
     context.equipmentItems = allItems.filter(i => i.type === "equipement");
-
-    context.inventoryItems = allItems.filter(i =>
-      i.type !== "statut" &&
-      i.type !== "equipement"
-    );
+    context.inventoryItems = allItems.filter(i => i.type !== "statut" && i.type !== "equipement");
 
     context.equippedSlots = {
       head: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "head"),
@@ -161,17 +111,15 @@ class ZombieD100ActorSheet extends ActorSheet {
     event.preventDefault();
 
     let data;
-
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch (err) {
+    } catch {
       return super._onDrop(event);
     }
 
     if (data.type !== "Item") return super._onDrop(event);
 
     let droppedItem = null;
-
     try {
       if (data.uuid) droppedItem = await fromUuid(data.uuid);
       if (!droppedItem && data.id) droppedItem = game.items.get(data.id);
@@ -179,30 +127,18 @@ class ZombieD100ActorSheet extends ActorSheet {
       console.error(err);
     }
 
-    if (!droppedItem) {
-      ui.notifications.warn("Objet introuvable.");
-      return;
-    }
+    if (!droppedItem) return ui.notifications.warn("Objet introuvable.");
 
     const itemData = droppedItem.toObject();
     const stackableTypes = ["munition", "nourriture", "soin", "objet"];
 
     if (stackableTypes.includes(itemData.type)) {
-      const existing = this.actor.items.find(i =>
-        i.type === itemData.type &&
-        i.name === itemData.name
-      );
-
+      const existing = this.actor.items.find(i => i.type === itemData.type && i.name === itemData.name);
       if (existing) {
         const oldQty = Number(existing.system.quantite ?? 1);
         const addQty = Number(itemData.system?.quantite ?? 1);
-
-        await existing.update({
-          "system.quantite": oldQty + addQty
-        });
-
-        ui.notifications.info(`${itemData.name} cumulé : ${oldQty + addQty}`);
-        return;
+        await existing.update({ "system.quantite": oldQty + addQty });
+        return ui.notifications.info(`${itemData.name} cumulé : ${oldQty + addQty}`);
       }
     }
 
@@ -213,21 +149,10 @@ class ZombieD100ActorSheet extends ActorSheet {
   _getStatusModifier(stat) {
     let total = 0;
 
-    for (let item of this.actor.items) {
-      if (item.type !== "statut") continue;
-
-      if (stat === "for") total += Number(item.system.modFor ?? 0);
-      if (stat === "agi") total += Number(item.system.modAgi ?? 0);
-      if (stat === "int") total += Number(item.system.modInt ?? 0);
-      if (stat === "per") total += Number(item.system.modPer ?? 0);
-      if (stat === "str") total += Number(item.system.modStr ?? 0);
-      if (stat === "combat") total += Number(item.system.modCombat ?? 0);
-      if (stat === "tir") total += Number(item.system.modTir ?? 0);
-    }
-
-    for (let item of this.actor.items) {
-      if (item.type !== "equipement") continue;
-      if (item.system.equipped !== true) continue;
+    for (const item of this.actor.items) {
+      const activeStatus = item.type === "statut";
+      const activeEquipment = item.type === "equipement" && item.system.equipped === true;
+      if (!activeStatus && !activeEquipment) continue;
 
       if (stat === "for") total += Number(item.system.modFor ?? 0);
       if (stat === "agi") total += Number(item.system.modAgi ?? 0);
@@ -260,9 +185,11 @@ class ZombieD100ActorSheet extends ActorSheet {
     if (result <= 5) {
       outcome = "RÉUSSITE CRITIQUE";
       color = "#00ff66";
+      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#ff0000";
+      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result <= seuil) {
       outcome = "RÉUSSITE";
       color = "#33cc33";
@@ -303,17 +230,10 @@ class ZombieD100ActorSheet extends ActorSheet {
     );
 
     for (const other of currentlyEquipped) {
-      await other.update({
-        "system.equipped": false,
-        "system.slot": ""
-      });
+      await other.update({ "system.equipped": false, "system.slot": "" });
     }
 
-    await item.update({
-      "system.equipped": true,
-      "system.slot": slot
-    });
-
+    await item.update({ "system.equipped": true, "system.slot": slot });
     ui.notifications.info(`${item.name} équipé en ${slot === "primary" ? "main principale" : "main secondaire"}.`);
   }
 
@@ -341,12 +261,8 @@ class ZombieD100ActorSheet extends ActorSheet {
     if (!item) return;
 
     if (item.type === "arme") {
-      await item.update({
-        "system.equipped": false,
-        "system.slot": ""
-      });
-      ui.notifications.info(`${item.name} retiré.`);
-      return;
+      await item.update({ "system.equipped": false, "system.slot": "" });
+      return ui.notifications.info(`${item.name} retiré.`);
     }
 
     if (item.type === "equipement") {
@@ -357,16 +273,13 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   async _findStatusInCompendium(name) {
     const pack = game.packs.get("world.statuts");
-
     if (!pack) {
       ui.notifications.warn("Compendium world.statuts introuvable.");
       return null;
     }
 
     await pack.getIndex();
-
     const entry = pack.index.find(e => e.name === name);
-
     if (!entry) {
       console.warn(`Statut introuvable dans world.statuts : ${name}`);
       return null;
@@ -376,29 +289,18 @@ class ZombieD100ActorSheet extends ActorSheet {
   }
 
   async _addStatus(name) {
-    const existing = this.actor.items.find(i =>
-      i.type === "statut" &&
-      i.name === name
-    );
-
+    const existing = this.actor.items.find(i => i.type === "statut" && i.name === name);
     if (existing) return;
 
     const statusDoc = await this._findStatusInCompendium(name);
     if (!statusDoc) return;
 
-    await this.actor.createEmbeddedDocuments("Item", [
-      statusDoc.toObject()
-    ]);
-
+    await this.actor.createEmbeddedDocuments("Item", [statusDoc.toObject()]);
     ui.notifications.info(`${this.actor.name} gagne le statut : ${name}`);
   }
 
   async _removeStatus(name) {
-    const existing = this.actor.items.find(i =>
-      i.type === "statut" &&
-      i.name === name
-    );
-
+    const existing = this.actor.items.find(i => i.type === "statut" && i.name === name);
     if (!existing) return;
 
     await this.actor.deleteEmbeddedDocuments("Item", [existing.id]);
@@ -456,10 +358,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       message = "Le survivant commence à voir ou entendre des choses inexistantes.";
     }
 
-    await this.actor.update({
-      "system.stress.mentalState": state
-    });
-
+    await this.actor.update({ "system.stress.mentalState": state });
     await this._updateAutomaticStatuses();
 
     ChatMessage.create({
@@ -484,10 +383,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
     const stage = Number(this.actor.system.infection.stage ?? 0) + 1;
 
-    await this.actor.update({
-      "system.infection.stage": stage
-    });
-
+    await this.actor.update({ "system.infection.stage": stage });
     await this._updateAutomaticStatuses();
 
     let message = "Fièvre légère et fatigue.";
@@ -523,10 +419,12 @@ class ZombieD100ActorSheet extends ActorSheet {
       outcome = "MORSURE CRITIQUE";
       color = "#ff0000";
       consequence = "Morsure grave. Le MJ peut imposer infection, blessure critique ou panique.";
+      await playSoundSafe(SOUND_CRIT_FAIL, VOLUME_CRIT_FAIL);
     } else if (result >= 96) {
       outcome = "ÉCHEC CRITIQUE";
       color = "#999999";
       consequence = "Le zombie tombe, se bloque, ou laisse une ouverture.";
+      await playSoundSafe(SOUND_CRIT_SUCCESS, VOLUME_CRIT_SUCCESS);
     } else if (result <= seuil) {
       outcome = "ATTAQUE RÉUSSIE";
       color = "#ff3333";
@@ -568,15 +466,11 @@ class ZombieD100ActorSheet extends ActorSheet {
         buttons: {
           primary: {
             label: "Main principale",
-            callback: async () => {
-              await this._equipWeapon(item, "primary");
-            }
+            callback: async () => this._equipWeapon(item, "primary")
           },
           secondary: {
             label: "Main secondaire",
-            callback: async () => {
-              await this._equipWeapon(item, "secondary");
-            }
+            callback: async () => this._equipWeapon(item, "secondary")
           }
         },
         default: "primary"
@@ -598,20 +492,14 @@ class ZombieD100ActorSheet extends ActorSheet {
       }
 
       const mode = ev.currentTarget.dataset.mode;
-
-      const modesAutorises = String(item.system.modesAutorises ?? "semi")
-        .split(",")
-        .map(m => m.trim());
+      const modesAutorises = String(item.system.modesAutorises ?? "semi").split(",").map(m => m.trim());
 
       if (!modesAutorises.includes(mode)) {
         ui.notifications.warn(`${item.name} ne peut pas utiliser ce mode.`);
         return;
       }
 
-      await item.update({
-        "system.modeTirActuel": mode
-      });
-
+      await item.update({ "system.modeTirActuel": mode });
       ui.notifications.info(`${item.name} passe en mode ${mode}.`);
     });
 
@@ -661,15 +549,13 @@ class ZombieD100ActorSheet extends ActorSheet {
       if (!row) return;
 
       const item = this.actor.items.get(row.dataset.itemId);
-
-      if (!item || item.type === "arme" || item.type === "statut" || item.type === "munition" || item.type === "equipement") return;
+      if (!item || ["arme", "statut", "munition", "equipement"].includes(item.type)) return;
 
       const quantite = Number(item.system.quantite ?? 1);
       const stressMod = Number(item.system.stressMod ?? 0);
       const faimMod = Number(item.system.faimMod ?? 0);
       const soifMod = Number(item.system.soifMod ?? 0);
       const noteUse = item.system.noteUse || "";
-
       const updates = {};
 
       if (stressMod !== 0) {
@@ -687,17 +573,10 @@ class ZombieD100ActorSheet extends ActorSheet {
         updates["system.survie.soif"] = Math.max(0, Math.min(100, current + soifMod));
       }
 
-      if (Object.keys(updates).length > 0) {
-        await this.actor.update(updates);
-      }
+      if (Object.keys(updates).length > 0) await this.actor.update(updates);
 
-      if (quantite > 1) {
-        await item.update({
-          "system.quantite": quantite - 1
-        });
-      } else {
-        await this.actor.deleteEmbeddedDocuments("Item", [item.id]);
-      }
+      if (quantite > 1) await item.update({ "system.quantite": quantite - 1 });
+      else await this.actor.deleteEmbeddedDocuments("Item", [item.id]);
 
       await this._updateAutomaticStatuses();
 
@@ -765,7 +644,6 @@ class ZombieD100ActorSheet extends ActorSheet {
       }
 
       const bonus = Number(item.system.bonus ?? 0) + bonusMode;
-
       const statKey = melee ? "combat" : "tir";
       const statLabel = melee ? "Combat rapproché" : `Tir - ${modeLabel}`;
       const baseValue = Number(this.actor.system.stats?.[statKey] ?? 10);
@@ -780,10 +658,7 @@ class ZombieD100ActorSheet extends ActorSheet {
         }
 
         ammoAfter = ammoBefore - coutMunition;
-
-        await item.update({
-          "system.munitions": ammoAfter
-        });
+        await item.update({ "system.munitions": ammoAfter });
       }
 
       const extraInfo = `
@@ -802,7 +677,6 @@ class ZombieD100ActorSheet extends ActorSheet {
       if (!row) return;
 
       const weapon = this.actor.items.get(row.dataset.itemId);
-
       if (!weapon || weapon.type !== "arme") return;
 
       if (isMeleeWeapon(weapon)) {
@@ -811,47 +685,24 @@ class ZombieD100ActorSheet extends ActorSheet {
       }
 
       const typeMunition = weapon.system.typeMunition;
+      if (!typeMunition) return ui.notifications.warn("Cette arme n'utilise pas de munition.");
 
-      if (!typeMunition) {
-        ui.notifications.warn("Cette arme n'utilise pas de munition.");
-        return;
-      }
-
-      const ammoItem = this.actor.items.find(i =>
-        i.type === "munition" &&
-        i.name === typeMunition
-      );
-
-      if (!ammoItem) {
-        ui.notifications.warn(`Aucune munition ${typeMunition} trouvée.`);
-        return;
-      }
+      const ammoItem = this.actor.items.find(i => i.type === "munition" && i.name === typeMunition);
+      if (!ammoItem) return ui.notifications.warn(`Aucune munition ${typeMunition} trouvée.`);
 
       const chargeurMax = Number(weapon.system.chargeur ?? 0);
       const currentAmmo = Number(weapon.system.munitions ?? 0);
       const missing = chargeurMax - currentAmmo;
 
-      if (missing <= 0) {
-        ui.notifications.info("Chargeur déjà plein.");
-        return;
-      }
+      if (missing <= 0) return ui.notifications.info("Chargeur déjà plein.");
 
       const reserve = Number(ammoItem.system.quantite ?? 0);
-
-      if (reserve <= 0) {
-        ui.notifications.warn("Plus de munitions disponibles.");
-        return;
-      }
+      if (reserve <= 0) return ui.notifications.warn("Plus de munitions disponibles.");
 
       const used = Math.min(missing, reserve);
 
-      await weapon.update({
-        "system.munitions": currentAmmo + used
-      });
-
-      await ammoItem.update({
-        "system.quantite": reserve - used
-      });
+      await weapon.update({ "system.munitions": currentAmmo + used });
+      await ammoItem.update({ "system.quantite": reserve - used });
     });
 
     html.find(".roll-stat").click(async ev => {
@@ -868,11 +719,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       ev.preventDefault();
 
       const current = Number(this.actor.system.stress?.value ?? 0);
-
-      await this.actor.update({
-        "system.stress.value": Math.min(100, current + 5)
-      });
-
+      await this.actor.update({ "system.stress.value": Math.min(100, current + 5) });
       await this._updateAutomaticStatuses();
     });
 
@@ -880,11 +727,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       ev.preventDefault();
 
       const current = Number(this.actor.system.stress?.value ?? 0);
-
-      await this.actor.update({
-        "system.stress.value": Math.max(0, current - 5)
-      });
-
+      await this.actor.update({ "system.stress.value": Math.max(0, current - 5) });
       await this._updateAutomaticStatuses();
     });
 
@@ -919,16 +762,11 @@ class ZombieD100ItemSheet extends ItemSheet {
     const context = super.getData();
 
     context.system = this.item.system;
-
     context.isWeapon = this.item.type === "arme";
     context.isAmmo = this.item.type === "munition";
     context.isStatus = this.item.type === "statut";
     context.isEquipment = this.item.type === "equipement";
-
-    context.isUsable =
-      this.item.type === "nourriture" ||
-      this.item.type === "soin" ||
-      this.item.type === "objet";
+    context.isUsable = ["nourriture", "soin", "objet"].includes(this.item.type);
 
     return context;
   }
