@@ -48,40 +48,44 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   getData() {
   const context = super.getData();
+
   const system = foundry.utils.deepClone(this.actor.system ?? {});
 
-  system.stats ??= {};
-  system.stats.for ??= 30;
-  system.stats.agi ??= 30;
-  system.stats.int ??= 30;
-  system.stats.per ??= 30;
-  system.stats.str ??= 30;
-  system.stats.combat ??= 30;
-  system.stats.tir ??= 30;
+  // Sécurité pour anciens acteurs ou acteurs mal initialisés
+  system.stats = system.stats ?? {};
+  system.stats.for = Number(system.stats.for ?? 30);
+  system.stats.agi = Number(system.stats.agi ?? 30);
+  system.stats.int = Number(system.stats.int ?? 30);
+  system.stats.per = Number(system.stats.per ?? 30);
+  system.stats.str = Number(system.stats.str ?? 30);
+  system.stats.combat = Number(system.stats.combat ?? 30);
+  system.stats.tir = Number(system.stats.tir ?? 30);
 
-  system.stress ??= {};
-  system.stress.value ??= 0;
-  system.stress.mentalState ??= "stable";
+  system.stress = system.stress ?? {};
+  system.stress.value = Number(system.stress.value ?? 0);
+  system.stress.mentalState = system.stress.mentalState ?? "stable";
 
-  system.survie ??= {};
-  system.survie.faim ??= 0;
-  system.survie.soif ??= 0;
+  system.survie = system.survie ?? {};
+  system.survie.faim = Number(system.survie.faim ?? 0);
+  system.survie.soif = Number(system.survie.soif ?? 0);
 
-  system.infection ??= {};
-  system.infection.infected ??= false;
-  system.infection.stage ??= 0;
-  system.infection.timer ??= 0;
+  system.infection = system.infection ?? {};
+  system.infection.infected = system.infection.infected ?? false;
+  system.infection.stage = Number(system.infection.stage ?? 0);
+  system.infection.timer = Number(system.infection.timer ?? 0);
 
-  const baseSystem = foundry.utils.deepClone(this.actor.system);
+  system.blessures = system.blessures ?? "";
+  system.statuts = system.statuts ?? "";
+  system.notes = system.notes ?? "";
 
   const finalStats = {
-    for: Number(baseSystem.stats.for || 0),
-    agi: Number(baseSystem.stats.agi || 0),
-    int: Number(baseSystem.stats.int || 0),
-    per: Number(baseSystem.stats.per || 0),
-    str: Number(baseSystem.stats.str || 0),
-    combat: Number(baseSystem.stats.combat || 0),
-    tir: Number(baseSystem.stats.tir || 0)
+    for: Number(system.stats.for ?? 30),
+    agi: Number(system.stats.agi ?? 30),
+    int: Number(system.stats.int ?? 30),
+    per: Number(system.stats.per ?? 30),
+    str: Number(system.stats.str ?? 30),
+    combat: Number(system.stats.combat ?? 30),
+    tir: Number(system.stats.tir ?? 30)
   };
 
   const activeItems = this.actor.items.filter(i =>
@@ -99,10 +103,9 @@ class ZombieD100ActorSheet extends ActorSheet {
     finalStats.tir += Number(item.system.modTir || 0);
   }
 
-  baseSystem.stats = finalStats;
+  system.stats = finalStats;
 
-  context.system = baseSystem;
-
+  context.system = system;
   context.isZombie = this.actor.type === "zombie";
 
   const allItems = this.actor.items.map(item => {
@@ -137,7 +140,6 @@ class ZombieD100ActorSheet extends ActorSheet {
   });
 
   context.statusItems = allItems.filter(i => i.type === "statut");
-
   context.equipmentItems = allItems.filter(i => i.type === "equipement");
 
   context.inventoryItems = allItems.filter(i =>
@@ -197,7 +199,6 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   return context;
 }
-
   async _onDrop(event) {
     event.preventDefault();
 
