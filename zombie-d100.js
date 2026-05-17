@@ -1,25 +1,3 @@
-const SOUND_CRIT_SUCCESS = "https://assets.forge-vtt.com/629920bcbd59cfed65256382/moodmode-weather-news-logo-154226.mp3";
-const SOUND_CRIT_FAIL = "https://assets.forge-vtt.com/629920bcbd59cfed65256382/Cod%20zombies%20%20evil%20laugh.mp3";
-
-const VOLUME_CRIT_SUCCESS = 0.1;
-const VOLUME_CRIT_FAIL = 0.3;
-
-async function playSoundSafe(path, volume = 0.1) {
-  try {
-    await AudioHelper.play(
-      {
-        src: path,
-        volume,
-        autoplay: true,
-        loop: false
-      },
-      true
-    );
-  } catch (err) {
-    console.error("Erreur son critique :", err);
-  }
-}
-
 Hooks.once("init", async function () {
   console.log("Zombie Apocalypse D100 | Initialisation");
 
@@ -41,6 +19,17 @@ Hooks.once("init", async function () {
     makeDefault: true
   });
 });
+
+function isMeleeWeapon(item) {
+  const typeArme = String(item?.system?.typeArme ?? "").toLowerCase().trim();
+
+  return (
+    typeArme === "melee" ||
+    typeArme === "corps à corps" ||
+    typeArme === "corps a corps" ||
+    typeArme === "cac"
+  );
+}
 
 class ZombieD100ActorSheet extends ActorSheet {
   static get defaultOptions() {
@@ -156,9 +145,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       return super._onDrop(event);
     }
 
-    if (data.type !== "Item") {
-      return super._onDrop(event);
-    }
+    if (data.type !== "Item") return super._onDrop(event);
 
     let droppedItem = null;
 
@@ -324,7 +311,6 @@ class ZombieD100ActorSheet extends ActorSheet {
     }
 
     await item.update({ "system.equipped": true });
-
     ui.notifications.info(`${item.name} équipé dans le slot ${slot}.`);
   }
 
@@ -711,20 +697,20 @@ class ZombieD100ActorSheet extends ActorSheet {
       const item = this.actor.items.get(row.dataset.itemId);
       if (!item || item.type !== "arme") return;
 
-      const typeArme = item.system.typeArme || "tir";
+      const melee = isMeleeWeapon(item);
 
-      const modesAutorises = String(item.system.modesAutorises ?? "semi")
+      const modesAutorises = String(item.system.modesAutorises ?? "")
         .split(",")
         .map(m => m.trim())
         .filter(m => m.length > 0);
 
       let modeTir = item.system.modeTirActuel || "semi";
 
-      if (typeArme === "melee") {
+      if (melee) {
         modeTir = "melee";
       }
 
-      if (!modesAutorises.includes(modeTir)) {
+      if (!melee && !modesAutorises.includes(modeTir)) {
         ui.notifications.warn(`${item.name} ne peut pas utiliser le mode ${modeTir}.`);
         return;
       }
@@ -733,19 +719,19 @@ class ZombieD100ActorSheet extends ActorSheet {
       let bonusMode = 0;
       let modeLabel = "Corps à corps";
 
-      if (modeTir === "semi") {
+      if (!melee && modeTir === "semi") {
         coutMunition = 1;
         bonusMode = 0;
         modeLabel = "Semi-auto";
       }
 
-      if (modeTir === "burst") {
+      if (!melee && modeTir === "burst") {
         coutMunition = 3;
         bonusMode = 10;
         modeLabel = "Rafale";
       }
 
-      if (modeTir === "auto") {
+      if (!melee && modeTir === "auto") {
         coutMunition = 5;
         bonusMode = 20;
         modeLabel = "Automatique";
@@ -753,14 +739,14 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       const bonus = Number(item.system.bonus ?? 0) + bonusMode;
 
-      const statKey = typeArme === "melee" ? "combat" : "tir";
-      const statLabel = typeArme === "melee" ? "Combat rapproché" : `Tir - ${modeLabel}`;
+      const statKey = melee ? "combat" : "tir";
+      const statLabel = melee ? "Combat rapproché" : `Tir - ${modeLabel}`;
       const baseValue = Number(this.actor.system.stats?.[statKey] ?? 10);
 
       let ammoBefore = Number(item.system.munitions ?? 0);
       let ammoAfter = ammoBefore;
 
-      if (typeArme !== "melee") {
+      if (!melee) {
         if (ammoBefore < coutMunition) {
           ui.notifications.warn(`${item.name} n'a pas assez de munitions dans le chargeur !`);
           return;
@@ -775,8 +761,8 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       const extraInfo = `
         <p><b>Mode utilisé :</b> ${modeLabel}</p>
-        ${typeArme !== "melee" ? `<p><b>Munitions consommées :</b> ${coutMunition}</p>` : ""}
-        ${typeArme !== "melee" ? `<p><b>Munitions restantes :</b> ${ammoAfter}</p>` : ""}
+        ${!melee ? `<p><b>Munitions consommées :</b> ${coutMunition}</p>` : ""}
+        ${!melee ? `<p><b>Munitions restantes :</b> ${ammoAfter}</p>` : ""}
       `;
 
       await this._rollD100(statLabel, baseValue, bonus, item.name, statKey, extraInfo);
@@ -792,7 +778,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       if (!weapon || weapon.type !== "arme") return;
 
-      if (weapon.system.typeArme === "melee") {
+      if (isMeleeWeapon(weapon)) {
         ui.notifications.warn("Une arme de corps à corps ne se recharge pas.");
         return;
       }
