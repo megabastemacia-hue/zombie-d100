@@ -47,65 +47,133 @@ class ZombieD100ActorSheet extends ActorSheet {
   }
 
   getData() {
-    const context = super.getData();
-    const system = foundry.utils.deepClone(this.actor.system);
+  const context = super.getData();
 
-    const statusItemsRaw = this.actor.items.filter(i => i.type === "statut");
-    const equipmentItemsRaw = this.actor.items.filter(i => i.type === "equipement" && i.system.equipped === true);
+  const baseSystem = foundry.utils.deepClone(this.actor.system);
 
-    if (system.stats) {
-      for (const item of [...statusItemsRaw, ...equipmentItemsRaw]) {
-        system.stats.for += Number(item.system.modFor || 0);
-        system.stats.agi += Number(item.system.modAgi || 0);
-        system.stats.int += Number(item.system.modInt || 0);
-        system.stats.per += Number(item.system.modPer || 0);
-        system.stats.str += Number(item.system.modStr || 0);
-        system.stats.combat += Number(item.system.modCombat || 0);
-        system.stats.tir += Number(item.system.modTir || 0);
-      }
-    }
+  const finalStats = {
+    for: Number(baseSystem.stats.for || 0),
+    agi: Number(baseSystem.stats.agi || 0),
+    int: Number(baseSystem.stats.int || 0),
+    per: Number(baseSystem.stats.per || 0),
+    str: Number(baseSystem.stats.str || 0),
+    combat: Number(baseSystem.stats.combat || 0),
+    tir: Number(baseSystem.stats.tir || 0)
+  };
 
-    context.system = system;
-    context.isZombie = this.actor.type === "zombie";
+  const activeItems = this.actor.items.filter(i =>
+    i.type === "statut" ||
+    (i.type === "equipement" && i.system.equipped === true)
+  );
 
-    const allItems = this.actor.items.map(item => {
-      const modes = String(item.system.modesAutorises ?? "").split(",").map(m => m.trim());
-
-      return {
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        system: item.system,
-        isWeapon: item.type === "arme",
-        isAmmo: item.type === "munition",
-        isUsable: ["nourriture", "soin", "objet"].includes(item.type),
-        isEquipment: item.type === "equipement",
-        isEquipped: item.system.equipped === true,
-        isStatus: item.type === "statut",
-        slot: item.system.slot || "",
-        canSemi: modes.includes("semi"),
-        canBurst: modes.includes("burst"),
-        canAuto: modes.includes("auto")
-      };
-    });
-
-    context.statusItems = allItems.filter(i => i.type === "statut");
-    context.equipmentItems = allItems.filter(i => i.type === "equipement");
-    context.inventoryItems = allItems.filter(i => i.type !== "statut" && i.type !== "equipement");
-
-    context.equippedSlots = {
-      head: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "head"),
-      body: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "body"),
-      bag: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "bag"),
-      primary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "primary"),
-      secondary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "secondary"),
-      hands: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "hands"),
-      feet: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "feet"),
-      accessory: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "accessory")
-    };
-
-    return context;
+  for (const item of activeItems) {
+    finalStats.for += Number(item.system.modFor || 0);
+    finalStats.agi += Number(item.system.modAgi || 0);
+    finalStats.int += Number(item.system.modInt || 0);
+    finalStats.per += Number(item.system.modPer || 0);
+    finalStats.str += Number(item.system.modStr || 0);
+    finalStats.combat += Number(item.system.modCombat || 0);
+    finalStats.tir += Number(item.system.modTir || 0);
   }
+
+  baseSystem.stats = finalStats;
+
+  context.system = baseSystem;
+
+  context.isZombie = this.actor.type === "zombie";
+
+  const allItems = this.actor.items.map(item => {
+    const modes = String(item.system.modesAutorises ?? "")
+      .split(",")
+      .map(m => m.trim());
+
+    return {
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      system: item.system,
+
+      isWeapon: item.type === "arme",
+      isAmmo: item.type === "munition",
+      isUsable:
+        item.type === "nourriture" ||
+        item.type === "soin" ||
+        item.type === "objet",
+
+      isEquipment: item.type === "equipement",
+      isEquipped: item.system.equipped === true,
+
+      isStatus: item.type === "statut",
+
+      slot: item.system.slot || "",
+
+      canSemi: modes.includes("semi"),
+      canBurst: modes.includes("burst"),
+      canAuto: modes.includes("auto")
+    };
+  });
+
+  context.statusItems = allItems.filter(i => i.type === "statut");
+
+  context.equipmentItems = allItems.filter(i => i.type === "equipement");
+
+  context.inventoryItems = allItems.filter(i =>
+    i.type !== "statut" &&
+    i.type !== "equipement"
+  );
+
+  context.equippedSlots = {
+    head: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "head"
+    ),
+
+    body: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "body"
+    ),
+
+    bag: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "bag"
+    ),
+
+    primary: allItems.find(i =>
+      (i.type === "equipement" || i.type === "arme") &&
+      i.system.equipped &&
+      i.system.slot === "primary"
+    ),
+
+    secondary: allItems.find(i =>
+      (i.type === "equipement" || i.type === "arme") &&
+      i.system.equipped &&
+      i.system.slot === "secondary"
+    ),
+
+    hands: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "hands"
+    ),
+
+    feet: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "feet"
+    ),
+
+    accessory: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "accessory"
+    )
+  };
+
+  return context;
+}
 
   async _onDrop(event) {
     event.preventDefault();
