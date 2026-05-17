@@ -47,13 +47,11 @@ function isMeleeWeapon(item) {
     .toLowerCase()
     .trim();
 
-  if (typeArme === "melee") return true;
-  if (typeArme.includes("corps")) return true;
-  if (typeArme.includes("mêlée")) return true;
-  if (typeArme.includes("melee")) return true;
-  if (typeArme.includes("cac")) return true;
-
-  return false;
+  return (
+    typeArme === "melee" ||
+    typeArme.includes("corps") ||
+    typeArme.includes("cac")
+  );
 }
 
 class ZombieD100ActorSheet extends ActorSheet {
@@ -170,9 +168,7 @@ class ZombieD100ActorSheet extends ActorSheet {
       return super._onDrop(event);
     }
 
-    if (data.type !== "Item") {
-      return super._onDrop(event);
-    }
+    if (data.type !== "Item") return super._onDrop(event);
 
     let droppedItem = null;
 
@@ -338,7 +334,6 @@ class ZombieD100ActorSheet extends ActorSheet {
     }
 
     await item.update({ "system.equipped": true });
-
     ui.notifications.info(`${item.name} équipé dans le slot ${slot}.`);
   }
 
@@ -597,6 +592,11 @@ class ZombieD100ActorSheet extends ActorSheet {
       const item = this.actor.items.get(row.dataset.itemId);
       if (!item || item.type !== "arme") return;
 
+      if (isMeleeWeapon(item)) {
+        ui.notifications.warn("Une arme de corps à corps n'a pas de mode de tir.");
+        return;
+      }
+
       const mode = ev.currentTarget.dataset.mode;
 
       const modesAutorises = String(item.system.modesAutorises ?? "semi")
@@ -719,87 +719,81 @@ class ZombieD100ActorSheet extends ActorSheet {
     html.find(".item-attack").click(async ev => {
       ev.preventDefault();
 
-const row = ev.currentTarget.closest(".item-row");
-if (!row) return;
+      const row = ev.currentTarget.closest(".item-row");
+      if (!row) return;
 
-const item = this.actor.items.get(row.dataset.itemId);
-if (!item || item.type !== "arme") return;
+      const item = this.actor.items.get(row.dataset.itemId);
+      if (!item || item.type !== "arme") return;
 
-const typeArme = String(item.system.typeArme ?? "tir")
-  .toLowerCase()
-  .trim();
+      const melee = isMeleeWeapon(item);
 
-const melee =
-  typeArme === "melee" ||
-  typeArme.includes("corps") ||
-  typeArme.includes("cac");
+      let modeTir = "melee";
+      let coutMunition = 0;
+      let bonusMode = 0;
+      let modeLabel = "Corps à corps";
 
-let modeTir = "melee";
-let coutMunition = 0;
-let bonusMode = 0;
-let modeLabel = "Corps à corps";
+      if (!melee) {
+        modeTir = item.system.modeTirActuel || "semi";
 
-if (!melee) {
-  modeTir = item.system.modeTirActuel || "semi";
+        const modesAutorises = String(item.system.modesAutorises ?? "semi")
+          .split(",")
+          .map(m => m.trim())
+          .filter(m => m.length > 0);
 
-  const modesAutorises = String(item.system.modesAutorises ?? "semi")
-    .split(",")
-    .map(m => m.trim())
-    .filter(m => m.length > 0);
+        if (!modesAutorises.includes(modeTir)) {
+          ui.notifications.warn(`${item.name} ne peut pas utiliser le mode ${modeTir}.`);
+          return;
+        }
 
-  if (!modesAutorises.includes(modeTir)) {
-    ui.notifications.warn(`${item.name} ne peut pas utiliser le mode ${modeTir}.`);
-    return;
-  }
+        if (modeTir === "semi") {
+          coutMunition = 1;
+          bonusMode = 0;
+          modeLabel = "Semi-auto";
+        }
 
-  if (modeTir === "semi") {
-    coutMunition = 1;
-    bonusMode = 0;
-    modeLabel = "Semi-auto";
-  }
+        if (modeTir === "burst") {
+          coutMunition = 3;
+          bonusMode = 10;
+          modeLabel = "Rafale";
+        }
 
-  if (modeTir === "burst") {
-    coutMunition = 3;
-    bonusMode = 10;
-    modeLabel = "Rafale";
-  }
+        if (modeTir === "auto") {
+          coutMunition = 5;
+          bonusMode = 20;
+          modeLabel = "Automatique";
+        }
+      }
 
-  if (modeTir === "auto") {
-    coutMunition = 5;
-    bonusMode = 20;
-    modeLabel = "Automatique";
-  }
-}
+      const bonus = Number(item.system.bonus ?? 0) + bonusMode;
 
-const bonus = Number(item.system.bonus ?? 0) + bonusMode;
+      const statKey = melee ? "combat" : "tir";
+      const statLabel = melee ? "Combat rapproché" : `Tir - ${modeLabel}`;
+      const baseValue = Number(this.actor.system.stats?.[statKey] ?? 10);
 
-const statKey = melee ? "combat" : "tir";
-const statLabel = melee ? "Combat rapproché" : `Tir - ${modeLabel}`;
-const baseValue = Number(this.actor.system.stats?.[statKey] ?? 10);
+      let ammoBefore = Number(item.system.munitions ?? 0);
+      let ammoAfter = ammoBefore;
 
-let ammoBefore = Number(item.system.munitions ?? 0);
-let ammoAfter = ammoBefore;
+      if (!melee) {
+        if (ammoBefore < coutMunition) {
+          ui.notifications.warn(`${item.name} n'a pas assez de munitions dans le chargeur !`);
+          return;
+        }
 
-if (!melee) {
-  if (ammoBefore < coutMunition) {
-    ui.notifications.warn(`${item.name} n'a pas assez de munitions dans le chargeur !`);
-    return;
-  }
+        ammoAfter = ammoBefore - coutMunition;
 
-  ammoAfter = ammoBefore - coutMunition;
+        await item.update({
+          "system.munitions": ammoAfter
+        });
+      }
 
-  await item.update({
-    "system.munitions": ammoAfter
-  });
-}
+      const extraInfo = `
+        <p><b>Mode utilisé :</b> ${modeLabel}</p>
+        ${!melee ? `<p><b>Munitions consommées :</b> ${coutMunition}</p>` : ""}
+        ${!melee ? `<p><b>Munitions restantes :</b> ${ammoAfter}</p>` : ""}
+      `;
 
-const extraInfo = `
-  <p><b>Mode utilisé :</b> ${modeLabel}</p>
-  ${!melee ? `<p><b>Munitions consommées :</b> ${coutMunition}</p>` : ""}
-  ${!melee ? `<p><b>Munitions restantes :</b> ${ammoAfter}</p>` : ""}
-`;
-
-await this._rollD100(statLabel, baseValue, bonus, item.name, statKey, extraInfo);
+      await this._rollD100(statLabel, baseValue, bonus, item.name, statKey, extraInfo);
+    });
 
     html.find(".item-reload").click(async ev => {
       ev.preventDefault();
@@ -811,8 +805,8 @@ await this._rollD100(statLabel, baseValue, bonus, item.name, statKey, extraInfo)
 
       if (!weapon || weapon.type !== "arme") return;
 
-      if (weapon.system.typeArme === "Corps à corps") {
-        ui.notifications.warn("Une arme de Corps à corps ne se recharge pas.");
+      if (isMeleeWeapon(weapon)) {
+        ui.notifications.warn("Une arme de corps à corps ne se recharge pas.");
         return;
       }
 
