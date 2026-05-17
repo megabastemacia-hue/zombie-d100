@@ -48,6 +48,29 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   getData() {
   const context = super.getData();
+  const system = foundry.utils.deepClone(this.actor.system ?? {});
+
+  system.stats ??= {};
+  system.stats.for ??= 30;
+  system.stats.agi ??= 30;
+  system.stats.int ??= 30;
+  system.stats.per ??= 30;
+  system.stats.str ??= 30;
+  system.stats.combat ??= 30;
+  system.stats.tir ??= 30;
+
+  system.stress ??= {};
+  system.stress.value ??= 0;
+  system.stress.mentalState ??= "stable";
+
+  system.survie ??= {};
+  system.survie.faim ??= 0;
+  system.survie.soif ??= 0;
+
+  system.infection ??= {};
+  system.infection.infected ??= false;
+  system.infection.stage ??= 0;
+  system.infection.timer ??= 0;
 
   const baseSystem = foundry.utils.deepClone(this.actor.system);
 
