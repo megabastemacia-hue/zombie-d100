@@ -720,8 +720,8 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       let modeTir = item.system.modeTirActuel || "semi";
 
-      if (typeArme === "corps à corps") {
-        modeTir = "corps à corps";
+      if (typeArme === "Corps à corps") {
+        modeTir = "Corps à corps";
       }
 
       if (!modesAutorises.includes(modeTir)) {
@@ -792,8 +792,8 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       if (!weapon || weapon.type !== "arme") return;
 
-      if (weapon.system.typeArme === "corps à corps") {
-        ui.notifications.warn("Une arme de corps à corps ne se recharge pas.");
+      if (weapon.system.typeArme === "Corps à corps") {
+        ui.notifications.warn("Une arme de Corps à corps ne se recharge pas.");
         return;
       }
 
