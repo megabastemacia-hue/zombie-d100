@@ -731,6 +731,13 @@ class ZombieD100ActorSheet extends ActorSheet {
       await this._updateAutomaticStatuses();
     });
 
+    html.find('input[name="system.survie.faim"], input[name="system.survie.soif"]').change(async ev => {
+      ev.preventDefault();
+      await this.submit({preventClose: true,updateData: {}});
+      await this._updateAutomaticStatuses();
+      this.render(false);
+    });
+
     html.find(".mental-check").click(async ev => {
       ev.preventDefault();
       await this._checkMentalState();
