@@ -51,6 +51,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
   const system = foundry.utils.deepClone(this.actor.system ?? {});
 
+  // Sécurité pour anciens acteurs ou acteurs mal initialisés
   system.stats = system.stats ?? {};
   system.stats.for = Number(system.stats.for ?? 30);
   system.stats.agi = Number(system.stats.agi ?? 30);
@@ -77,16 +78,14 @@ class ZombieD100ActorSheet extends ActorSheet {
   system.statuts = system.statuts ?? "";
   system.notes = system.notes ?? "";
 
-  const baseStats = foundry.utils.deepClone(system.stats);
-
   const finalStats = {
-    for: Number(baseStats.for ?? 30),
-    agi: Number(baseStats.agi ?? 30),
-    int: Number(baseStats.int ?? 30),
-    per: Number(baseStats.per ?? 30),
-    str: Number(baseStats.str ?? 30),
-    combat: Number(baseStats.combat ?? 30),
-    tir: Number(baseStats.tir ?? 30)
+    for: Number(system.stats.for ?? 30),
+    agi: Number(system.stats.agi ?? 30),
+    int: Number(system.stats.int ?? 30),
+    per: Number(system.stats.per ?? 30),
+    str: Number(system.stats.str ?? 30),
+    combat: Number(system.stats.combat ?? 30),
+    tir: Number(system.stats.tir ?? 30)
   };
 
   const activeItems = this.actor.items.filter(i =>
@@ -104,9 +103,9 @@ class ZombieD100ActorSheet extends ActorSheet {
     finalStats.tir += Number(item.system.modTir || 0);
   }
 
+  system.stats = finalStats;
+
   context.system = system;
-  context.baseStats = baseStats;
-  context.finalStats = finalStats;
   context.isZombie = this.actor.type === "zombie";
 
   const allItems = this.actor.items.map(item => {
@@ -129,6 +128,7 @@ class ZombieD100ActorSheet extends ActorSheet {
 
       isEquipment: item.type === "equipement",
       isEquipped: item.system.equipped === true,
+
       isStatus: item.type === "statut",
 
       slot: item.system.slot || "",
@@ -148,14 +148,53 @@ class ZombieD100ActorSheet extends ActorSheet {
   );
 
   context.equippedSlots = {
-    head: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "head"),
-    body: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "body"),
-    bag: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "bag"),
-    primary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "primary"),
-    secondary: allItems.find(i => (i.type === "equipement" || i.type === "arme") && i.system.equipped && i.system.slot === "secondary"),
-    hands: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "hands"),
-    feet: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "feet"),
-    accessory: allItems.find(i => i.type === "equipement" && i.system.equipped && i.system.slot === "accessory")
+    head: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "head"
+    ),
+
+    body: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "body"
+    ),
+
+    bag: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "bag"
+    ),
+
+    primary: allItems.find(i =>
+      (i.type === "equipement" || i.type === "arme") &&
+      i.system.equipped &&
+      i.system.slot === "primary"
+    ),
+
+    secondary: allItems.find(i =>
+      (i.type === "equipement" || i.type === "arme") &&
+      i.system.equipped &&
+      i.system.slot === "secondary"
+    ),
+
+    hands: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "hands"
+    ),
+
+    feet: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "feet"
+    ),
+
+    accessory: allItems.find(i =>
+      i.type === "equipement" &&
+      i.system.equipped &&
+      i.system.slot === "accessory"
+    )
   };
 
   return context;
