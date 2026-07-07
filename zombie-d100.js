@@ -78,10 +78,40 @@ class ZombieD100ActorSheet extends ActorSheet {
     system.statuts = system.statuts ?? "";
     system.notes = system.notes ?? "";
 
-    // IMPORTANT : on garde ici uniquement les stats de base.
-    // Les statuts et équipements ne modifient PAS les inputs de la fiche.
-    // Les bonus/malus sont appliqués seulement pendant les jets via _getStatusModifier().
+    // Stats de base : jamais modifiées par les statuts ou équipements
+    const baseStats = foundry.utils.deepClone(system.stats);
+
+    // Stats finales : uniquement pour affichage et information
+    const finalStats = {
+      for: Number(baseStats.for ?? 30),
+      agi: Number(baseStats.agi ?? 30),
+      int: Number(baseStats.int ?? 30),
+      per: Number(baseStats.per ?? 30),
+      str: Number(baseStats.str ?? 30),
+      combat: Number(baseStats.combat ?? 30),
+      tir: Number(baseStats.tir ?? 30)
+    };
+
+    const activeItems = this.actor.items.filter(i =>
+      i.type === "statut" ||
+      (i.type === "equipement" && i.system.equipped === true)
+    );
+
+    for (const item of activeItems) {
+      finalStats.for += Number(item.system.modFor || 0);
+      finalStats.agi += Number(item.system.modAgi || 0);
+      finalStats.int += Number(item.system.modInt || 0);
+      finalStats.per += Number(item.system.modPer || 0);
+      finalStats.str += Number(item.system.modStr || 0);
+      finalStats.combat += Number(item.system.modCombat || 0);
+      finalStats.tir += Number(item.system.modTir || 0);
+    }
+
+    // IMPORTANT : context.system garde les stats de base pour éviter l'empilement des malus.
+    // Les jets appliquent les malus via _getStatusModifier().
     context.system = system;
+    context.baseStats = baseStats;
+    context.finalStats = finalStats;
     context.isZombie = this.actor.type === "zombie";
 
     const allItems = this.actor.items.map(item => {
