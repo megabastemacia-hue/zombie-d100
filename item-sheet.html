@@ -2,7 +2,7 @@
 
   <header class="sheet-header">
     <h1>
-      <input name="name" type="text" value="{{item.name}}" placeholder="Nom de l'objet"/>
+      <input name="name" type="text" value="{{item.name}}" placeholder="Nom de l'objet ou de la munition"/>
     </h1>
   </header>
 
@@ -185,6 +185,25 @@
     <div class="form-group">
       <label>TIR</label>
       <input type="number" name="system.modTir" value="{{system.modTir}}"/>
+    </div>
+
+    {{/if}}
+
+    <!-- ========================= -->
+    <!-- MUNITIONS -->
+    <!-- ========================= -->
+
+    {{#if isAmmo}}
+
+    <div class="form-group">
+      <label>Quantité</label>
+      <input
+        type="number"
+        name="system.quantite"
+        value="{{system.quantite}}"
+        min="0"
+        step="1"
+      />
     </div>
 
     {{/if}}
